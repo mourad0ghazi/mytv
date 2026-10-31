@@ -1,8 +1,8 @@
 // public/js/router.js · routage History API, interception des liens, nettoyage des vues.
 // Aucun rechargement complet : une seule coquille HTML, des vues montées puis démontées.
 
-import { BASE, resolve, withoutBase } from './base.js?v=3.18.1';
-import { consolePath } from './console.js?v=3.18.1';
+import { BASE, resolve, withoutBase } from './base.js?v=3.19.0';
+import { consolePath } from './console.js?v=3.19.0';
 
 const ROUTES = [
   { name: 'home', pattern: /^\/$/, title: 'Catalogue' },
@@ -16,6 +16,9 @@ const ROUTES = [
   { name: 'favorites', pattern: /^\/favoris\/?$/, title: 'Favoris et historique' },
   { name: 'access', pattern: /^\/acces\/([a-f0-9]{64})\/?$/, title: 'Connexion par lien', keys: ['token'] },
   { name: 'login', pattern: /^\/(?:connexion|login)\/?$/, title: 'Connexion administration' },
+  { name: 'compte', pattern: /^\/compte\/?$/, title: 'Mon compte' },
+  { name: 'compteInscription', pattern: /^\/compte\/inscription\/?$/, title: 'Créer un compte' },
+  { name: 'compteConnexion', pattern: /^\/compte\/connexion\/?$/, title: 'Connexion à mon compte' },
   { name: 'legal', pattern: /^\/mentions-legales\/?$/, title: 'Mentions légales' },
   { name: 'privacy', pattern: /^\/confidentialite\/?$/, title: 'Confidentialité' },
   { name: 'report', pattern: /^\/signaler\/?$/, title: 'Signaler un contenu' },

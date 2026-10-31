@@ -197,6 +197,89 @@ export const prefs = {
   clearVodHistory() { write(KEYS.vodHistory, []); write(KEYS.vodProgress, {}); emit('history'); },
 
   /** Position de reprise, en secondes, par contenu (et par épisode pour un anime). */
+  /* ---------------------------------------------------------------------------
+     Compte visiteur : après connexion, le serveur rend l'union des favoris, de
+     l'historique et des préférences. On remplace le local par cette union, sans
+     jamais inventer une entrée absente du compte.
+     --------------------------------------------------------------------------- */
+
+  importer({ favoris = [], historique = [], preferences = {} } = {}) {
+    const liste = Array.isArray(favoris) ? favoris : [];
+    const chaines = liste.filter((item) => item && item.id && item.kind === 'chaine')
+      .map((item) => ({ id: item.id, name: item.name || '', at: item.at || new Date().toISOString() }));
+    const vod = liste.filter((item) => item && item.id && (item.kind === 'anime' || item.kind === 'film'))
+      .map((item) => ({
+        id: item.id,
+        kind: item.kind,
+        kindLabel: item.kind === 'anime' ? 'Anime' : 'Film',
+        title: item.name || '',
+        poster: '',
+        year: null,
+        licence: '',
+        href: item.kind === 'anime' ? `/anime/${item.id}` : `/film/${item.id}`,
+        at: item.at || new Date().toISOString(),
+      }));
+    write(KEYS.favorites, chaines.slice(0, 300));
+    write(KEYS.vodFavorites, vod.slice(0, 200));
+
+    const parcours = Array.isArray(historique) ? historique : [];
+    write(KEYS.history, parcours.filter((item) => item && item.id && item.kind === 'chaine')
+      .map((item) => ({ id: item.id, name: item.name || '', at: item.at || new Date().toISOString() }))
+      .slice(0, 80));
+    const reprises = parcours.filter((item) => item && item.id && (item.kind === 'anime' || item.kind === 'film'));
+    write(KEYS.vodHistory, reprises.map((item) => ({
+      id: item.id,
+      kind: item.kind,
+      kindLabel: item.kind === 'anime' ? 'Anime' : 'Film',
+      title: item.name || '',
+      poster: '',
+      year: null,
+      durationSeconds: Math.max(0, Math.round(Number(item.duration) || 0)),
+      seconds: Math.max(0, Math.round(Number(item.position) || 0)),
+      episodeId: '',
+      href: item.kind === 'anime' ? `/anime/${item.id}` : `/film/${item.id}`,
+      at: item.at || new Date().toISOString(),
+    })).slice(0, 60));
+    const positions = {};
+    for (const item of reprises) {
+      const seconds = Math.max(0, Math.round(Number(item.position) || 0));
+      if (seconds > 0) positions[`${item.kind}:${item.id}`] = seconds;
+    }
+    write(KEYS.vodProgress, positions);
+
+    if (preferences && typeof preferences === 'object') {
+      if (['cadre', 'plein', 'minimal'].includes(preferences.skin)) prefs.setSkin(preferences.skin);
+      if (['auto', 'on', 'off'].includes(preferences.tvMode)) prefs.setTvMode(preferences.tvMode);
+      if (typeof preferences.sourdine === 'boolean') prefs.setMuted(preferences.sourdine);
+    }
+    emit('favorites');
+    emit('history');
+  },
+
+  /** État local complet, au format attendu par le compte visiteur. */
+  exporter() {
+    const favoris = [
+      ...prefs.favorites().map((item) => ({ kind: 'chaine', id: item.id, name: item.name, at: item.at })),
+      ...prefs.vodFavorites().map((item) => ({ kind: item.kind, id: item.id, name: item.title, at: item.at })),
+    ];
+    const historique = [
+      ...prefs.history().map((item) => ({ kind: 'chaine', id: item.id, name: item.name, at: item.at })),
+      ...prefs.vodHistory().map((item) => ({
+        kind: item.kind,
+        id: item.id,
+        name: item.title,
+        at: item.at,
+        position: item.seconds,
+        duration: item.durationSeconds,
+      })),
+    ];
+    return {
+      favoris,
+      historique,
+      preferences: { skin: prefs.skin(), tvMode: prefs.tvMode(), sourdine: prefs.muted() },
+    };
+  },
+
   vodProgress(kind, id, episodeId = '') {
     const all = read(KEYS.vodProgress, {});
     const key = `${kind}:${id}${episodeId ? `:${episodeId}` : ''}`;

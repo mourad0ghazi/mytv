@@ -3,6 +3,63 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 Versionnement sémantique. Toutes les dates sont au format `AAAA-MM-JJ`.
 
+## [3.19.0] - 2026-10-31
+
+Les visiteurs ont désormais un compte. Il naît d'une inscription confirmée par e-mail, vit
+sur le serveur Node avec un volume persistant, et n'ouvre aucun droit sur la console. Le
+compte garde les favoris, l'historique, les reprises de lecture, les préférences d'affichage
+et le suivi de ses propres signalements.
+
+### Ajouté
+
+- **`server/core/users.js`** : comptes visiteurs. Mot de passe scrypt (12 caractères
+  minimum, lettres et chiffres), jamais stocké ; code de confirmation à six chiffres
+  (15 minutes, cinq essais, renvoi après 60 secondes, huit envois par heure et par adresse) ;
+  cinq inscriptions et huit connexions ratées par quart d'heure et par IP, avec `Retry-After`.
+  Une adresse inconnue coûte le même temps qu'un mot de passe faux : la connexion répond
+  toujours « Adresse ou mot de passe incorrect. »
+- **Données bornées** : 200 favoris, 100 reprises, 50 signalements suivis par compte. Une
+  fusion (connexion depuis un autre appareil) fait l'union, jamais l'écrasement silencieux.
+- **`server/api/accounts.js`** : quinze routes `/api/compte/*` (inscription, vérification,
+  renvoi de code, connexion, sortie, profil, mot de passe, code oublié, réinitialisation,
+  données, préférences, favoris, historique, signalements, droits).
+- **`server/core/store.js`** : `data/users.json`, écriture atomique, quarantaine d'un fichier
+  illisible, jamais inclus dans les sauvegardes de catalogue (documenté).
+- **Sessions visiteur séparées** : `app.accountSessions`, registre distinct de la console,
+  TTL de 30 jours glissant. Un jeton visiteur reçoit 401 sur toute route `/api/admin/*`.
+- **`server/api/admin-members.js` et onglet « Membres »** : liste, recherche, filtre par
+  statut, suspension (sessions fermées), réactivation, suppression. Permission `team`.
+- **Réglage `registrationMode`** (25e réglage) : `ouvert` ou `ferme`, sans toucher aux comptes
+  existants.
+- **Neuf codes d'audit** : `compte.inscription`, `compte.confirmation`, `compte.connexion`,
+  `compte.mot-de-passe`, `compte.profil`, `compte.preferences`, `compte.donnees`,
+  `compte.suppression`, `membre.statut` (59 codes documentés).
+- **Pages publiques** : `/compte`, `/compte/inscription`, `/compte/connexion`, liées dans la
+  navigation principale. `public/js/compte.js` (session, appels, synchronisation) et
+  `public/js/views/compte.js` (inscription, confirmation, connexion, mot de passe oublié,
+  espace). `public/js/prefs.js` gagne `exporter()` et `importer()` : à la connexion, l'état
+  local part au serveur, l'union revient et remplace le stockage local.
+- **`Dockerfile`, `fly.toml`, `docs/DEPLOIEMENT-FLY.md`** : l'hébergement du serveur sur
+  Fly.io avec un volume `/data`. GitHub Pages reste le site statique ; il ne peut pas héberger
+  un processus qui écrit.
+- **`tests/comptes.test.js`** : 11 tests, dont un serveur SMTP local simulé (inscription,
+  mauvais code, confirmation, jeton, refus de la console, favoris, reprise, préférences,
+  fusion, suspension, suppression, inscriptions fermées, expiration, plafonds).
+
+### Modifié
+
+- `setPassword` d'administration et comptes visiteurs partagent la même liste noire de mots
+  de passe courants (`looksLikeCommonPassword` exporté depuis `server/core/auth.js`).
+- `public/js/api.js` : méthodes `Admin.membres`, `Admin.membre`, `Admin.updateMembre`,
+  `Admin.removeMembre`.
+- La page de connexion de la console reste inchangée : deux publics, deux registres.
+
+### Preuves
+
+- `npm test` : 407 tests, 80 suites, 0 échec.
+- `npm run build:static` : 1 475 chaînes, 7 anime, 6 films, version 3.19.0, base `/mytv/`.
+- `npm run verifier:publication` sur la copie locale sous `/mytv/` : treize contrôles passés.
+
 ## [3.18.1] - 2026-10-31
 
 Une affiche d'anime ou de film ne peut plus manquer sur le site publié. La démonstration vit

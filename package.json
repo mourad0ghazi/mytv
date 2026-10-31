@@ -1,6 +1,6 @@
 {
   "name": "streamtv",
-  "version": "3.18.1",
+  "version": "3.19.0",
   "private": true,
   "description": "StreamTV — catalogue chaînes en direct, anime, films, lecteur vidéo et console d’administration. Node.js natif, zéro dépendance.",
   "type": "module",

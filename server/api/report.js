@@ -6,6 +6,7 @@ import { LIMITS } from '../core/constants.js';
 import { AppError, requireOneOf } from '../core/errors.js';
 import { REASON_IDS, countFor, recordReport, reportThreshold } from '../core/reports.js';
 import { normalizeKey, normalizeName } from '../core/text.js';
+import { linkReportToVisitor } from './accounts.js';
 
 function findTarget(app, body) {
   const animeId = typeof body?.animeId === 'string' ? body.animeId.trim() : '';
@@ -78,7 +79,7 @@ function findTarget(app, body) {
 }
 
 export function registerReportRoutes(router, app) {
-  router.post('/api/report', async ({ body, ip }) => {
+  router.post('/api/report', async ({ body, ip, req }) => {
     const guard = app.reportGuard.check(ip);
     if (!guard.allowed) {
       throw new AppError('ERR-17', {
@@ -132,6 +133,13 @@ export function registerReportRoutes(router, app) {
     }
 
     await app.store.saveReports('report.create');
+    // Un visiteur connecté retrouve ses propres signalements dans son compte ; un visiteur
+    // anonyme n'a rien à lier et le signalement reste strictement public.
+    await linkReportToVisitor(app, req, {
+      ref: result.ref,
+      contentType: kind,
+      name: target.name || target.title || target.id,
+    }).catch(() => false);
     await app.store.audit('report.create', {
       channelIds: [counterKey],
       detail: `${result.ref} ${reason} (${result.count})`,

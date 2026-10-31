@@ -21,7 +21,7 @@ const COMMON_PASSWORDS = new Set([
  * Liste noire élargie : un mot courant suivi de quelques chiffres reste un mot courant.
  * « password1234 » est refusé ; « motdepassesolide123 » reste accepté.
  */
-function looksLikeCommonPassword(normalized) {
+export function looksLikeCommonPassword(normalized) {
   if (COMMON_PASSWORDS.has(normalized)) return true;
   for (const entry of COMMON_PASSWORDS) {
     if (entry.length < 5) continue;

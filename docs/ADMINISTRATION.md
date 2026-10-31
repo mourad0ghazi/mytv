@@ -48,6 +48,14 @@ Chaque code ci-dessous est écrit dans `data/audit.json` et traduit par la conso
 | `channel.restore` | Chaîne restaurée |
 | `channel.tag` | Catégorie changée |
 | `channel.update` | Chaîne modifiée |
+| `compte.confirmation` | Adresse e-mail confirmée |
+| `compte.connexion` | Connexion à un compte visiteur |
+| `compte.donnees` | Données de compte mises à jour |
+| `compte.inscription` | Compte visiteur créé |
+| `compte.mot-de-passe` | Mot de passe d’un compte visiteur remplacé |
+| `compte.preferences` | Préférences d’affichage enregistrées |
+| `compte.profil` | Profil de compte modifié |
+| `compte.suppression` | Compte visiteur supprimé |
 | `device.added` | Appareil autorisé |
 | `device.removed` | Appareil retiré |
 | `film.update` | Fiche film modifiée |
@@ -61,6 +69,7 @@ Chaque code ci-dessous est écrit dans `data/audit.json` et traduit par la conso
 | `login.success` | Connexion réussie avec le rôle |
 | `logout` | Déconnexion |
 | `mail.test` | Message de contrôle envoyé |
+| `membre.statut` | Statut d’un compte visiteur changé |
 | `migration.export` | Export des données lancé |
 | `password.change` | Mot de passe changé, sessions fermées |
 | `report.auto-delete` | Contenu retiré automatiquement au seuil de signalements |
@@ -199,7 +208,7 @@ Les réglages sont validés ensemble, avant toute écriture. Un champ refusé n'
 partiellement les autres (ERR-04). Le nombre de réglages est celui du schéma serveur, affiché
 dans l'écran et jamais recopié à la main.
 
-### Les 24 réglages
+### Les 25 réglages
 
 | Réglage | Clef | Défaut | Bornes et format | Effet |
 | --- | --- | --- | --- | --- |
@@ -227,8 +236,9 @@ dans l'écran et jamais recopié à la main.
 | Activer les catalogues Anime et Films | `vodEnabled` | true | booléen | Entrées Anime et Films dans la navigation et la recherche |
 | Rangées par genre sur la page Films | `vodGenreRowsMax` | 6 | 1 à 12, entier | Nombre maximal de rangées de genres sur /films |
 | Budget de tentatives d’import d’une source | `sourceRetryBudget` | 3 | 1 à 5, entier | Essais réseau lors de l'import d'une source |
+| Ouverture des inscriptions | `registrationMode` | ouvert | ouvert, ferme | Fermées : aucun nouveau compte visiteur, même si l'envoi d'e-mail fonctionne |
 
-Permission : `settings`. La réinitialisation remet les 24 valeurs par défaut, sans toucher au
+Permission : `settings`. La réinitialisation remet les 25 valeurs par défaut, sans toucher au
 catalogue, aux comptes ni aux sauvegardes.
 
 ## Onglet Santé
@@ -267,6 +277,27 @@ Comptes nominatifs et rôles. Le propriétaire garde son mot de passe historique
 - Créer, modifier, supprimer un compte. Un membre supprimé perd ses sessions ouvertes.
 - Refus : un rôle inconnu est refusé (ERR-04). Le compte propriétaire ne peut pas être
   supprimé ni changer de rôle.
+
+Permission : `team`.
+
+## Onglet Membres
+
+Comptes visiteurs créés depuis la page publique `/compte`. Ils n'ouvrent aucun droit
+d'administration : les sessions visiteur vivent dans un registre distinct de la console.
+
+- Colonnes affichées : nom, adresse, statut, favoris, reprises, date d'inscription, dernière
+  connexion. Ni mot de passe ni empreinte ne sortent du serveur.
+- Un compte naît « en attente » : il devient « actif » après confirmation de l'adresse par un
+  code à six chiffres. Sans serveur d'envoi configuré, toute inscription est refusée (ERR-19).
+- Suspendre ferme immédiatement les sessions du compte ; réactiver rend l'accès sans effacer
+  ses données.
+- Supprimer retire le compte et ses données personnelles : favoris, historique, reprises,
+  signalements suivis.
+- Cinq inscriptions et cinq renvois de code par adresse IP et par quart d'heure, huit
+  tentatives de connexion échouées avant verrouillage (ERR-17, en-tête `Retry-After`).
+- La connexion répond « Adresse ou mot de passe incorrect. » pour une adresse inconnue comme
+  pour un mot de passe faux : aucune énumération de comptes.
+- `registrationMode` ferme les inscriptions sans toucher aux comptes existants.
 
 Permission : `team`.
 

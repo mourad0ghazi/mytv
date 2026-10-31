@@ -147,7 +147,7 @@ describe('Contrat de données (§4)', () => {
   });
 
   test('réglages détenus par une seule source de vérité, schéma complet, bornes documentées', () => {
-    assert.equal(SETTING_COUNT, 24);
+    assert.equal(SETTING_COUNT, 25);
     assert.equal(Object.keys(DEFAULTS).length, SETTING_COUNT);
     assert.equal(SCHEMA.length, SETTING_COUNT);
     const keys = new Set(SCHEMA.map((item) => item.key));

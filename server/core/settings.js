@@ -29,6 +29,7 @@ export const DEFAULTS = Object.freeze({
   vodEnabled: true,
   vodGenreRowsMax: 6,
   sourceRetryBudget: 3,
+  registrationMode: 'ouvert',
 });
 
 const HERO_MODES = ['featured', 'random', 'first'];
@@ -83,6 +84,10 @@ export const SCHEMA = [
     help: 'Nombre maximal de rangées de genres affichées sur /films (entre 1 et 12).' },
   { key: 'sourceRetryBudget', type: 'number', label: 'Budget de tentatives d’import d’une source', min: 1, max: 5, step: 1, integer: true, maxLength: 1,
     help: 'Nombre maximal d’essais réseau lors de l’importation d’une source distante (entre 1 et 5).' },
+  { key: 'registrationMode', type: 'select', label: 'Ouverture des inscriptions', maxLength: 8, options: [
+    { value: 'ouvert', label: 'Ouvertes' },
+    { value: 'ferme', label: 'Fermées' },
+  ], help: 'Fermées : aucun nouveau compte visiteur, même si l’envoi d’e-mail fonctionne. Les comptes existants restent utilisables.' },
 ];
 
 export const SETTING_KEYS = SCHEMA.map((item) => item.key);

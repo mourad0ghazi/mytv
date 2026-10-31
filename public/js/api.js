@@ -1,6 +1,6 @@
 // public/js/api.js · client HTTP unique. Toute erreur devient une phrase française.
 
-import { withBase } from './base.js?v=3.18.1';
+import { withBase } from './base.js?v=3.19.0';
 
 const TOKEN_KEY = 'streamtv.token';
 
@@ -219,4 +219,9 @@ export const Admin = {
   restoreVod: (kind, id) => api(`/api/admin/vod/${kind}/${encodeURIComponent(id)}/restore`, { method: 'POST', body: {} }),
   resetVodReports: (kind, id) => api(`/api/admin/vod/${kind}/${encodeURIComponent(id)}/reports/reset`, { method: 'POST', body: {} }),
   documentation: () => api('/api/admin/documentation'),
+  // 3.19.0 : comptes visiteurs. La console les modère, elle ne voit jamais leur mot de passe.
+  membres: (params = {}) => api(`/api/admin/membres?${new URLSearchParams(params)}`),
+  membre: (id) => api(`/api/admin/membres/${encodeURIComponent(id)}`),
+  updateMembre: (id, patch) => api(`/api/admin/membres/${encodeURIComponent(id)}`, { method: 'PATCH', body: patch }),
+  removeMembre: (id) => api(`/api/admin/membres/${encodeURIComponent(id)}`, { method: 'DELETE', body: {} }),
 };

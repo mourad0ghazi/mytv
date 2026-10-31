@@ -487,3 +487,48 @@ Retour arrière : arrêter, restaurer le code précédent et la sauvegarde cré�
 
 Tout incident produit une entrée dans `data/audit.log` (action `incident`) et une fiche dans
 `data/logs/incident-AAAAMMJJ.md`.
+
+## 10. Comptes visiteurs (3.19.0)
+
+### Un visiteur ne reçoit pas son code
+
+1. Vérifier que l'envoi est configuré : `GET /api/config` ne le dit pas, mais la connexion à la
+   console et l'onglet Réglages affichent l'état du serveur d'envoi.
+2. Les variables `STREAMTV_SMTP_*` sont lues au démarrage : un changement demande un
+   redémarrage (`fly secrets set` puis `fly deploy` sur Fly.io).
+3. Sans SMTP, l'inscription répond 503 avec une phrase explicite ; aucun compte n'est créé.
+4. Un code dure quinze minutes, cinq essais, un renvoi par minute et huit par heure et par
+   adresse. Un redémarrage annule les codes en cours : demander un nouveau code.
+
+### Fermer les inscriptions
+
+- Onglet Réglages, réglage `registrationMode` = `ferme`, puis Enregistrer. Les comptes
+  existants continuent de fonctionner, y compris la réinitialisation de mot de passe.
+- Remettre `ouvert` rouvre l'inscription sans redémarrage.
+
+### Suspendre ou supprimer un compte
+
+- Onglet Membres : « Suspendre » ferme immédiatement les sessions du compte ; « Réactiver »
+  rend l'accès sans effacer ses données ; la corbeille supprime le compte et ses données
+  personnelles, sans retour possible.
+- Chaque geste est journalisé (`membre.statut`, `compte.suppression`) et reste lisible dans
+  l'onglet Pilotage.
+
+### Le fichier des comptes est illisible
+
+- Le serveur le met en quarantaine (`users.corrupt-AAAAMMJJ-HHMMSS.json`) et repart d'une
+  liste vide : les visiteurs peuvent se réinscrire, l'ancien fichier reste disponible pour
+  analyse.
+- Les sauvegardes de catalogue ne contiennent pas les comptes : pour les conserver, sauvegarder
+  le volume de données (`fly volumes snapshots create streamtv_data`).
+
+### Déployer une nouvelle version sur Fly.io
+
+```bash
+npm test
+npm run versionner:check
+npm run build:static        # si le site statique change aussi
+fly deploy
+```
+
+Le volume `/data` est conservé. Détail : `docs/DEPLOIEMENT-FLY.md`.

@@ -50,7 +50,7 @@ describe('Modèles de données et persistance atomique (3.18.0)', () => {
   });
 
   test('une seule source de vérité pour SETTING_COUNT et validation serveur des nouveaux réglages', () => {
-    assert.equal(SETTING_COUNT, 24);
+    assert.equal(SETTING_COUNT, 25);
     const valid = validateSettings({ vodEnabled: false, vodGenreRowsMax: 4, sourceRetryBudget: 2 });
     assert.equal(valid.errors.length, 0);
     assert.equal(valid.settings.vodEnabled, false);
