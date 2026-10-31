@@ -3,7 +3,7 @@
 | Élément | Valeur |
 |---|---|
 | Objet | recette du site StreamTV, conforme au cahier des charges *StreamTV v2* |
-| Version livrée | 3.8.0 (recette initiale 3.6.0, compléments 3.7.0 et 3.8.0) |
+| Version livrée | 3.8.0 (recette initiale 3.6.0, compléments 3.7.0 et 3.8.0) ; compléments 3.18.1 au §9 |
 | Date de recette | 25 octobre 2026 |
 | Environnement | Node.js 22.22.3 (compatible 20 LTS), 8 cœurs, 16 Go de mémoire, Linux, réseau local |
 | Dossier de recette | machine vierge, `data/` recréé depuis `data/seed/seed.m3u` |
@@ -344,14 +344,15 @@ l'atelier. Le rendu réel est contrôlé après publication, sur le site en lign
 | Fiabilité | 343 chaînes déclarées fragiles passées en `blocked` avec leur raison ; 1 132 restent lisibles | conforme |
 
 
-### Recette des écrans de la 3.18.0
+### Recette des écrans de la 3.18.1
 
 Complément daté du 31 octobre 2026. Il ne remplace pas le procès-verbal initial (3.8.0) :
-il consigne ce que la 3.18.0 ajoute et les preuves exécutées ce jour-là.
+il consigne ce que la 3.18.0 ajoute et les preuves exécutées ce jour-là, corrigées par la
+3.18.1 (affiches suivant la racine de publication).
 
 | Point | Vérification | Résultat |
 |---|---|---|
-| Tests | `npm test` : 390 tests, 0 échec, 0 ignoré | conforme |
+| Tests | `npm test` : 393 tests, 0 échec, 0 ignoré | conforme |
 | Contrôles d'exploitation | `node scripts/verify.js --base http://127.0.0.1:3000` : 53 contrôles réussis sur 54 | conforme, 1 avertissement attendu (mot de passe de démonstration) |
 | Catalogue anime | 7 fiches publiées, toutes avec licence et au moins un épisode | conforme |
 | Catalogue films | 6 fiches publiées, toutes avec licence et une adresse de lecture | conforme |
@@ -363,6 +364,7 @@ il consigne ce que la 3.18.0 ajoute et les preuves exécutées ce jour-là.
 | Console | 14 onglets, dont Anime, Films et Sources ; documentation liée à chaque onglet | conforme, `tests/documentation.test.js` |
 | Réglages | 24 réglages, tous affichés et documentés ; `vodEnabled` ferme les deux catalogues | conforme |
 | Téléphone | trois affiches par ligne à 375 px, aucun contrôle posé sur l'affiche | conforme, `tests/design.test.js` |
+| Affiches publiées | chaque affiche suit la racine `/mytv/` et existe dans `public/posters/` | conforme, `tests/statique.test.js` |
 | Publication | `npm run build:static`, base `/mytv/`, anime, films et sources dans l'instantané | conforme, `tests/statique.test.js` |
 | Adresse en ligne | `https://mourad0ghazi.github.io/mytv/` : accueil, anime, films, recherche et fiches | artefact vérifié localement sous `/mytv/` ; activation Pages à faire dans les réglages du dépôt |
 

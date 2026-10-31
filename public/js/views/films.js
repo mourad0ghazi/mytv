@@ -2,14 +2,15 @@
 // Un film n'est pas une chaîne : pas de guide, pas de direct, mais une durée, une année,
 // des genres et une reprise de lecture à la seconde.
 
-import { api } from '../api.js?v=3.18.0';
-import { COPY } from '../copy.js?v=3.18.0';
-import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, toast } from '../ui.js?v=3.18.0';
-import { prefs } from '../prefs.js?v=3.18.0';
-import { getPlayer } from '../player.js?v=3.18.0';
+import { api } from '../api.js?v=3.18.1';
+import { withBase } from '../base.js?v=3.18.1';
+import { COPY } from '../copy.js?v=3.18.1';
+import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, toast } from '../ui.js?v=3.18.1';
+import { prefs } from '../prefs.js?v=3.18.1';
+import { getPlayer } from '../player.js?v=3.18.1';
 import {
   fmtDuration, fmtPosition, sourcesBlock, vodCard, vodFilters, vodPager, vodRow,
-} from '../vod-ui.js?v=3.18.0';
+} from '../vod-ui.js?v=3.18.1';
 
 /** Ouvre le film, reprend à la seconde mémorisée, enregistre la position en local. */
 export function playFilm({ film, navigate }) {
@@ -26,7 +27,7 @@ export function playFilm({ film, navigate }) {
     id: film.id,
     name: film.title,
     url: film.url,
-    logo: film.poster,
+    logo: film.poster ? withBase(film.poster) : '',
     quality: film.quality || 'HD',
     category: 'cinema',
     categoryLabel: 'Film',
@@ -274,7 +275,7 @@ export async function renderFilmDetail(container, ctx, id) {
     h('section', { class: 'vod-hero' },
       h('div', { class: 'vod-hero-poster' },
         film.poster
-          ? h('img', { src: film.poster, alt: '', width: '300', height: '450' })
+          ? h('img', { src: withBase(film.poster), alt: '', width: '300', height: '450' })
           : h('span', { class: 'vod-initial', 'aria-hidden': 'true', text: film.title.slice(0, 2).toUpperCase() })),
       h('div', { class: 'vod-hero-text' },
         h('p', { class: 'eyebrow' }, 'Film'),

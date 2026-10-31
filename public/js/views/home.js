@@ -1,14 +1,14 @@
 // public/js/views/home.js · écran 1 : accueil et catalogue paginé.
 // ≤ 60 chaînes par réponse, ≤ 120 cartes dans le DOM, squelettes pendant le chargement.
 
-import { api } from '../api.js?v=3.18.0';
-import { COPY } from '../copy.js?v=3.18.0';
-import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, modal, logoNode, toast } from '../ui.js?v=3.18.0';
-import { channelCard, categoryChips, hiddenNotice, paintNow } from '../components.js?v=3.18.0';
-import { getPlayer } from '../player.js?v=3.18.0';
-import { prefs } from '../prefs.js?v=3.18.0';
-import { nowFor, heureCourte, progression, primeNow } from '../epg-now.js?v=3.18.0';
-import { mountRails } from './rails.js?v=3.18.0';
+import { api } from '../api.js?v=3.18.1';
+import { COPY } from '../copy.js?v=3.18.1';
+import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, modal, logoNode, toast } from '../ui.js?v=3.18.1';
+import { channelCard, categoryChips, hiddenNotice, paintNow } from '../components.js?v=3.18.1';
+import { getPlayer } from '../player.js?v=3.18.1';
+import { prefs } from '../prefs.js?v=3.18.1';
+import { nowFor, heureCourte, progression, primeNow } from '../epg-now.js?v=3.18.1';
+import { mountRails } from './rails.js?v=3.18.1';
 
 /** Ligne de programme du héros : remplacée dès que le guide répond, jamais bloquante. */
 function programmeLine(channel) {

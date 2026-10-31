@@ -2,11 +2,11 @@
 // Liste, état de la sonde, priorité réglable, activation, licence éditable, import manuel
 // avec retour d'état, historique des imports. Aucune source sans licence n'est importable.
 
-import { Admin } from '../../api.js?v=3.18.0';
-import { COPY } from '../../copy.js?v=3.18.0';
-import { h, icon, fmtNumber, fmtRelative, spinner, emptyState, toast } from '../../ui.js?v=3.18.0';
-import { apiGuard, field } from './common.js?v=3.18.0';
-import { docLink } from './doc.js?v=3.18.0';
+import { Admin } from '../../api.js?v=3.18.1';
+import { COPY } from '../../copy.js?v=3.18.1';
+import { h, icon, fmtNumber, fmtRelative, spinner, emptyState, toast } from '../../ui.js?v=3.18.1';
+import { apiGuard, field } from './common.js?v=3.18.1';
+import { docLink } from './doc.js?v=3.18.1';
 
 const CONTENU_LABEL = { chaine: 'Chaînes', anime: 'Anime', film: 'Films' };
 const TYPE_LABEL = { direct: 'Direct', vod: 'Vidéo à la demande' };

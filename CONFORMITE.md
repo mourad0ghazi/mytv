@@ -1,9 +1,9 @@
 # Conformité — StreamTV (évaluation initiale 3.6.0, compléments jusqu’à 3.18.0)
 
 Version évaluée : **3.6.0**, 25 octobre 2026 ; compléments 3.7.0 à 3.18.0 documentés au §4.
-Version livrée au 31 octobre 2026 : **3.18.0**.
+Version livrée au 31 octobre 2026 : **3.18.1** (3.18.0 augmentée du correctif d’affiches sous `/mytv/`).
 Référentiel : cahier des charges *StreamTV v2* (§1 à §13, 118 critères).
-Preuves de la livraison 3.18.0 : `npm test` (390 tests, 0 échec),
+Preuves de la livraison 3.18.1 : `npm test` (393 tests, 0 échec),
 `node scripts/verify.js --base http://127.0.0.1:3000` (53 contrôles réussis sur 54,
 1 avertissement attendu : mot de passe de démonstration), `node scripts/measure-tagger.js`,
 smoke tests DOM (jsdom) des 12 routes.
@@ -574,7 +574,7 @@ déclarées, dont les catalogues anime et films, les sources et la documentation
 
 ```bash
 node server/index.js &                     # service sur :3000
-npm test                                   # 390 tests, 0 échec
+npm test                                   # 393 tests, 0 échec
 node scripts/verify.js --base http://127.0.0.1:3000
 node scripts/measure-tagger.js
 node scripts/backup.js --list

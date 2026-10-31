@@ -2,9 +2,9 @@
 // La console n'est joignable que depuis les appareils enregistrés ici. L'adresse secrète
 // se lit et se change au même endroit, sans jargon.
 
-import { Admin } from '../../api.js?v=3.18.0';
-import { copyText, h, icon, spinner, emptyState, toast } from '../../ui.js?v=3.18.0';
-import { apiGuard } from './common.js?v=3.18.0';
+import { Admin } from '../../api.js?v=3.18.1';
+import { copyText, h, icon, spinner, emptyState, toast } from '../../ui.js?v=3.18.1';
+import { apiGuard } from './common.js?v=3.18.1';
 
 function dateHeure(iso) {
   if (!iso) return 'jamais vu';

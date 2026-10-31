@@ -3,6 +3,34 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 Versionnement sémantique. Toutes les dates sont au format `AAAA-MM-JJ`.
 
+## [3.18.1] - 2026-10-31
+
+Une affiche d'anime ou de film ne peut plus manquer sur le site publié. La démonstration vit
+dans un sous-dossier (`/mytv/`) : une image désignée par un chemin absolu (`/posters/…`)
+sortait de ce dossier et répondait 404. Le défaut ne se voyait pas sur le serveur Node, servi
+à la racine, et aucun test ne le couvrait.
+
+### Corrigé
+
+- `public/js/vod-ui.js`, `views/anime.js`, `views/films.js`, `views/search.js` : les affiches
+  passent par `withBase()`, qui suit la racine de publication. Une adresse absolue de source
+  reste intacte.
+- `public/js/ui.js` : un logo livré avec le site suit lui aussi la racine de publication ; un
+  logo de source (adresse absolue) n'est pas modifié.
+
+### Ajouté
+
+- **Trois tests** (`tests/statique.test.js`) : `withBase` préfixe un chemin du site et laisse
+  une adresse absolue intacte ; aucun module d'affichage ne sert une image sans racine de
+  publication ; toutes les affiches de l'instantané existent dans `public/posters/`.
+- La version du serveur est désormais comparée à celle de `package.json` par le test de
+  conformité, au lieu d'une chaîne figée dans le test.
+
+### Preuves
+
+- `npm test` : 393 tests, 0 échec.
+- `npm run build:static` : démonstration reconstruite pour `/mytv/`, version 3.18.1.
+
 ## [3.18.0] - 2026-10-31
 
 StreamTV ouvre deux catalogues de vidéo à la demande et un modèle de sources. La règle reste

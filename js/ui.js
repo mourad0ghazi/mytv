@@ -1,6 +1,8 @@
 // public/js/ui.js · construction DOM sûre, icônes, toasts, modales, états.
 // Aucune donnée utilisateur n'est injectée en HTML : tout passe par textContent.
 
+import { withBase } from './base.js?v=3.18.1';
+
 const SVG = {
   search: '<circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path>',
   star: '<path d="m12 3.6 2.6 5.4 5.9.8-4.3 4.1 1.1 5.9-5.3-2.9-5.3 2.9 1.1-5.9L3.5 9.8l5.9-.8z"></path>',
@@ -262,7 +264,8 @@ export function hostOf(url) {
 
 export function logoNode(channel, size = 18) {
   if (channel.logo) {
-    const img = h('img', { src: channel.logo, alt: channel.name, loading: 'lazy', decoding: 'async', width: '96', height: '60' });
+    // Un logo de source est une adresse absolue ; un logo livré avec le site suit sa racine.
+    const img = h('img', { src: withBase(channel.logo), alt: channel.name, loading: 'lazy', decoding: 'async', width: '96', height: '60' });
     img.addEventListener('error', () => { img.replaceWith(initialNode(channel)); }, { once: true });
     return img;
   }
