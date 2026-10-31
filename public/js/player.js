@@ -1,17 +1,17 @@
 // public/js/player.js · lecteur : 7 états, détection de cause, 12 mires (§8).
 // Invariants : une seule reprise automatique, hls.destroy() à chaque sortie, aucun minuteur orphelin.
 
-import { consoleHref } from './console.js?v=3.21.0';
-import { api } from './api.js?v=3.21.0';
-import { COPY } from './copy.js?v=3.21.0';
-import { h, icon, toast, copyText, logoNode } from './ui.js?v=3.21.0';
-import { openPlayerOptions, openShortcuts } from './player-menu.js?v=3.21.0';
-import { leaveFullscreen, toggleFullscreen } from './player-fullscreen.js?v=3.21.0';
-import { prefs } from './prefs.js?v=3.21.0';
-import { nowFor, heureCourte, progression } from './epg-now.js?v=3.21.0';
+import { consoleHref } from './console.js?v=3.22.0';
+import { api, verdictLecture } from './api.js?v=3.22.0';
+import { COPY } from './copy.js?v=3.22.0';
+import { h, icon, toast, copyText, logoNode } from './ui.js?v=3.22.0';
+import { openPlayerOptions, openShortcuts } from './player-menu.js?v=3.22.0';
+import { leaveFullscreen, toggleFullscreen } from './player-fullscreen.js?v=3.22.0';
+import { prefs } from './prefs.js?v=3.22.0';
+import { nowFor, heureCourte, progression } from './epg-now.js?v=3.22.0';
 import {
   mireActionNodes, mireForBlocked, mireNode, mireRetryNode, similarPanel, wireGestures,
-} from './player-similar.js?v=3.21.0';
+} from './player-similar.js?v=3.22.0';
 
 const MIRES = COPY.player.mires;
 
@@ -95,6 +95,8 @@ class Player {
     // Relais serveur : utile seulement si le diffuseur refuse le navigateur (CORS).
     this.relayUrl = channel.relay?.available ? channel.relay.url : '';
     this.triedUrls = new Set([channel.url]);
+    // Un seul verdict par ouverture : la lecture réelle nourrit le catalogue, sans bavardage.
+    this.verdict = createVerdictGuard(channel.id, this.relayUrl);
     this.fallbackChannel = '';
     this.similarList = [];
     this.previousFocus = document.activeElement;
@@ -332,12 +334,12 @@ class Player {
     clearTimeout(this.manifestTimer);
     const code = data.response?.code || 0;
     if (data.type === window.Hls.ErrorTypes.NETWORK_ERROR) {
-      if (code === 403) return this.fail('P-05');
-      if (code === 404 || code === 410) return this.fail('P-04');
-      if (code === 0) return this.fail('P-03');
-      return this.fail('P-04');
+      if (code === 403) return this.fail('P-05', data);
+      if (code === 404 || code === 410) return this.fail('P-04', data);
+      if (code === 0) return this.fail('P-03', data);
+      return this.fail('P-04', data);
     }
-    if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR) return this.fail('P-06');
+    if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR) return this.fail('P-06', data);
     return this.fail('P-12');
   }
 
@@ -351,7 +353,7 @@ class Player {
   }
 
   /** Une seule reprise automatique, sans boucle (BUG-05). */
-  fail(code) {
+  fail(code, data = null) {
     const params = { nom: this.channel?.name || '', code: code === 'P-12' ? 'PLAY-12' : '' };
     if (RETRYABLE.has(code) && this.attempts < 1) {
       this.attempts += 1;
@@ -366,6 +368,8 @@ class Player {
       return;
     }
     if (this.tryFallback()) return;
+    // Plus aucune piste : le flux est réellement hors service pour ce visiteur.
+    this.verdict.echec(code, data);
     this.setState('ERROR');
     this.showMire(code, params);
   }
@@ -380,6 +384,7 @@ class Player {
    */
   tryFallback() {
     // Le flux a échoué dans le navigateur alors que le serveur le joint : on le relit une fois.
+    // Le relais passe en premier : il conserve la chaîne demandée, au lieu d'en changer.
     if (this.relayUrl && !this.triedUrls.has(this.relayUrl)) {
       this.triedUrls.add(this.relayUrl);
       this.announce('Le flux passe par le serveur : le diffuseur refuse le navigateur.');
@@ -613,6 +618,9 @@ class Player {
 
   restart() {
     this.attempts = 0;
+    // Une relance est une nouvelle mesure : le verdict peut changer d'un essai à l'autre.
+    this.verdict?.relance();
+    this.triedUrls = new Set([this.channel.url]);
     this.hideMire();
     this.releaseEngine();
     this.setState('PREPARING');
@@ -624,6 +632,9 @@ class Player {
     video.addEventListener('playing', () => {
       clearTimeout(this.manifestTimer);
       this.attempts = 0;
+      // Première image : le flux fonctionne, y compris depuis ce navigateur. C'est un fait
+      // que le serveur ne peut pas constater seul, il est enregistré une fois.
+      this.verdict.reussite();
       this.setState('PLAYING');
       this.hideMire();
       this.showOsd();

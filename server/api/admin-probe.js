@@ -4,6 +4,7 @@
 //   · « ronde » avance dans tout le catalogue par lots rotatifs, position retenue sur disque.
 // Le plafond de 300 sondes par minute et le journal d'audit sont communs aux deux.
 
+import { lectureStats } from '../core/playback.js';
 import { probeStats } from '../core/probe-plan.js';
 import { lancerRonde, lancerSondeNonTestees } from '../core/probe-runner.js';
 
@@ -43,7 +44,8 @@ export function registerProbeRoutes(router, app) {
   // Photographie de la mesure, sans sonder : ce qui est testé, ce qui reste, ce qui est lisible.
   router.get('/api/admin/health/resume', () => ({
     body: {
-      probe: probeStats(app.store.channels),
+      probe: probeStats(app.store.channels, { withProbe: false }),
+      lecture: lectureStats(app.store.channels),
       curseur: app.store.probe,
       seuilEchecs: 3,
     },

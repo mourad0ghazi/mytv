@@ -79,11 +79,12 @@ async function serve(app, ctx, { channel, rawUrl }) {
 export function registerRelayRoutes(router, app) {
   app.relayGate = createGate();
 
+  // `preflight` : hls.js d'un site tiers autorisé doit obtenir l'accord avant de lire.
   router.get('/api/relais/:id/flux.m3u8', async (ctx) => {
     const channel = findChannel(app, ctx.params.id);
     await serve(app, ctx, { channel, rawUrl: channel.url });
     return null;
-  });
+  }, { preflight: true });
 
   router.get('/api/relais/:id/s', async (ctx) => {
     const channel = findChannel(app, ctx.params.id);
@@ -91,5 +92,5 @@ export function registerRelayRoutes(router, app) {
     if (!rawUrl) throw new AppError('ERR-02', { field: 'u', params: { champ: 'adresse du flux' } });
     await serve(app, ctx, { channel, rawUrl });
     return null;
-  });
+  }, { preflight: true });
 }

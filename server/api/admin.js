@@ -15,6 +15,7 @@ import { exportJson, exportM3U } from '../core/exports.js';
 import { buildTags, detectCountry, detectLanguage, detectQuality, groupKind, normalizeName, normalizeUrl } from '../core/text.js';
 import { buildPredicate, paginate, sortChannels } from '../core/search.js';
 import { probeStats } from '../core/probe-plan.js';
+import { lectureStats } from '../core/playback.js';
 import { queryInt, queryString } from '../http/router.js';
 import { registerPilotageRoutes } from './admin-pilotage.js';
 import { registerSettingsRoutes } from './admin-settings.js';
@@ -644,7 +645,9 @@ export function registerAdminRoutes(base, app) {
         visible: active.filter((channel) => isPublic(channel, app.store.settings)).length,
         hidden: active.filter((channel) => !isPublic(channel, app.store.settings)).length,
         categories,
-        health: { ...app.store.healthCounts(), ...probeStats(app.store.channels) },
+        health: { ...app.store.healthCounts(), ...probeStats(app.store.channels, { withProbe: false }) },
+        // Ce que seule la lecture réelle apprend : les chaînes jugées par des visiteurs.
+        lecture: lectureStats(app.store.channels),
         probe: app.store.probe,
         sources,
         decision,

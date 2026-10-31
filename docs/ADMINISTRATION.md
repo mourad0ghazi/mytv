@@ -45,6 +45,7 @@ Chaque code ci-dessous est écrit dans `data/audit.json` et traduit par la conso
 | `channel.bulk` | Action groupée sur un nombre de chaînes |
 | `channel.create` | Chaîne ajoutée |
 | `channel.delete` | Chaîne retirée |
+| `channel.lecture` | Lecture en échec constatée chez les visiteurs, chaîne bloquée |
 | `channel.restore` | Chaîne restaurée |
 | `channel.tag` | Catégorie changée |
 | `channel.update` | Chaîne modifiée |
@@ -267,6 +268,18 @@ Sonde bornée des flux, sans jamais bloquer la console.
 Routes : `POST /api/admin/health/probe` (file des chaînes jamais testées),
 `POST /api/admin/health/ronde` (lot suivant du catalogue, `ids` pour cibler 100 chaînes au
 plus), `GET /api/admin/health/resume` (photographie de la mesure, sans sonder).
+
+### Verdicts de lecture (3.22.0)
+
+Le visiteur est un témoin : le lecteur envoie, sans compte ni identité, « ça lit » après la
+première image, ou « ça ne lit pas » avec la cause (`dead`, `geo`, `cors`, `timeout`, `codec`).
+
+- Une lecture réussie vaut mesure : la chaîne passe `up` et ses échecs sont purgés.
+- Deux échecs certains (403, 404) ou trois échecs ambigus bloquent la chaîne (`down`), avec sa
+  cause et une entrée de journal `channel.lecture`. Aucune chaîne n'est supprimée.
+- Garde-fous : une fois par visiteur et par chaîne sur 6 h, 20 verdicts par jour et par
+  visiteur, 30 blocages par heure au total. Seule une empreinte tronquée est conservée.
+- Carte « Bloquées par les visiteurs » dans l'onglet Santé.
 
 ### Relais des flux (3.21.0)
 

@@ -1,6 +1,6 @@
 // public/js/api.js · client HTTP unique. Toute erreur devient une phrase française.
 
-import { withBase } from './base.js?v=3.21.0';
+import { withBase } from './base.js?v=3.22.0';
 
 const TOKEN_KEY = 'streamtv.token';
 
@@ -27,6 +27,18 @@ export const auth = {
   },
   isSignedIn() { return Boolean(auth.token()); },
 };
+
+/**
+ * Verdict de lecture : `ok` quand une image est apparue, `echec` avec sa cause sinon.
+ * Un échec reste muet : le lecteur affiche déjà sa mire, inutile d'ajouter une erreur.
+ */
+export function verdictLecture(channelId, verdict, cause = '') {
+  return api('/api/events/lecture', {
+    method: 'POST',
+    body: { channelId, verdict, ...(cause ? { cause } : {}) },
+    timeout: 8000,
+  }).catch(() => null);
+}
 
 export async function api(path, { method = 'GET', body = null, timeout = 25_000, signal = null } = {}) {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {

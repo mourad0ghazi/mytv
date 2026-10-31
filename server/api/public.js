@@ -15,7 +15,24 @@ import { buildEpg } from '../core/epg.js';
 import { catalogForClient } from '../core/messages.js';
 import { reportThreshold } from '../core/reports.js';
 import { relayInfo } from '../core/relay.js';
+import {
+  LECTURE_CAUSES,
+  applyPlaybackFailure,
+  applyPlaybackSuccess,
+  seuilPour,
+} from '../core/playback.js';
 import { queryInt, queryString } from '../http/router.js';
+
+/** Enregistre un verdict de lecture : catalogue sur disque, index et journal d'audit. */
+async function applyPlaybackStore(app, channel, health) {
+  app.index.rebuild(app.store.channels.filter((item) => !item.deleted));
+  await app.store.saveChannels('lecture.verdict');
+  await app.store.audit('channel.lecture', {
+    channelIds: [channel.id],
+    detail: `${channel.name} · ${health.status} · ${health.reason}`,
+    actor: 'visiteur',
+  });
+}
 
 function publicChannels(app) {
   return app.store.channels.filter((channel) => isPublic(channel, app.store.settings));
@@ -219,6 +236,61 @@ export function registerPublicRoutes(router, app) {
     for (const key of Object.keys(plays.hours)) if (key < limite) delete plays.hours[key];
     app.store.savePlays('lecture').catch(() => {});
     return { body: { ok: true }, cache: 'no-store' };
+  });
+
+
+  /**
+   * EP-00b — verdict de lecture réelle (3.22.0).
+   * Le navigateur du visiteur est le seul témoin qui voit vraiment le flux. Une lecture
+   * réussie vaut mesure ; un échec répété bloque la chaîne, sans jamais la supprimer.
+   * Rien n'est nominatif : une empreinte tronquée sert seulement au plafond anti-abus.
+   */
+  router.post('/api/events/lecture', async ({ body, ip }) => {
+    const id = String(body?.channelId || '').slice(0, 32);
+    if (!/^[a-z0-9]{4,32}$/i.test(id)) throw new AppError('ERR-04', { field: 'channelId', params: { champ: 'chaîne' } });
+    const verdict = body?.verdict === 'ok' ? 'ok' : body?.verdict === 'echec' ? 'echec' : '';
+    if (!verdict) throw new AppError('ERR-04', { field: 'verdict', params: { champ: 'verdict de lecture' } });
+    const cause = verdict === 'echec' ? String(body?.cause || '') : 'ok';
+    if (verdict === 'echec' && !LECTURE_CAUSES.includes(cause)) throw new AppError('ERR-04', { field: 'cause', params: { champ: 'cause de l’échec' } });
+    const channel = app.store.channels.find((item) => item.id === id && !item.deleted);
+    if (!channel) throw new AppError('ERR-10');
+
+    const admission = app.playback.admit(ip, id);
+    if (!admission.ok && admission.raison === 'plafond') throw new AppError('ERR-17', { params: { n: 15 } });
+    // Un même visiteur ne compte qu'une fois par chaîne et par fenêtre : pas de bourrage.
+    if (!admission.ok) {
+      return { body: { ok: true, compte: false, verdict, message: 'Déjà enregistré pour cette chaîne.' }, cache: 'no-store' };
+    }
+
+    if (verdict === 'ok') {
+      const changee = channel.health?.status !== 'up';
+      if (changee) await applyPlaybackStore(app, channel, applyPlaybackSuccess(channel));
+      app.playback.clear(id);
+      return { body: { ok: true, compte: true, verdict, status: channel.health.status }, cache: 'no-store' };
+    }
+
+    const resultat = app.playback.register(id, cause);
+    // Le seuil est atteint ; le plafond horaire protège d'un bourrage de signalements.
+    const bloque = resultat.reached && app.playback.peutBloquer();
+    if (bloque) await applyPlaybackStore(app, channel, applyPlaybackFailure(channel, { cause }));
+    const restants = Math.max(0, seuilPour(cause) - resultat.count);
+    return {
+      body: {
+        ok: true,
+        compte: true,
+        verdict,
+        cause,
+        signalements: resultat.count,
+        seuil: resultat.threshold,
+        bloque,
+        message: bloque
+          ? 'Chaîne bloquée après plusieurs échecs constatés chez les visiteurs.'
+          : resultat.reached
+            ? 'Seuil atteint, mais trop de chaînes ont été bloquées dans l’heure : vérifiez depuis la console.'
+            : `Merci : ${restants} signalement${restants > 1 ? 's' : ''} encore avant de bloquer cette chaîne.`,
+      },
+      cache: 'no-store',
+    };
   });
 
   // EP-02 — configuration publique.

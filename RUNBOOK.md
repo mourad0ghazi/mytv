@@ -623,3 +623,47 @@ relayée se surveille comme une hausse d'usage CPU et réseau sur Fly.io
 Le relais ajoute un aller-retour serveur : préférer une variante de qualité inférieure, ou
 laisser le lecteur choisir une autre source de la même chaîne. Si le flux direct fonctionne
 chez certains visiteurs et pas d'autres, la cause est bien le CORS du diffuseur, pas la charge.
+
+## 13. Une chaîne affiche « Signal indisponible » (3.22.0)
+
+Le lecteur a maintenant un diagnostic. Avant de toucher au catalogue, demander la cause.
+
+### Connaître la cause, depuis la machine de l'exploitant
+
+```bash
+npm run diagnostic:chaine -- "2M Monde"      # par nom (accents et casse ignorés)
+npm run diagnostic:chaine -- 5a81c70138ed    # par identifiant
+npm run diagnostic:chaine -- "2M Monde" --json
+```
+
+Le script refait le chemin du lecteur : DNS, TLS, code HTTP, en-têtes CORS, playlist, premier
+fragment. Il sort en code 1 dès que le flux ne lit pas, et donne l'action à faire.
+
+| Verdict | Ce que cela veut dire | Ce qu'on fait |
+|---|---|---|
+| `up` | le flux lit depuis cette machine | rien ; si un visiteur échoue, c'est son réseau |
+| `cors` | le flux existe, le navigateur n'a pas le droit de le lire | le relais s'en charge ; vérifier `relay.available` sur la fiche |
+| `geo` | 403 ou 451 : restriction de zone ou d'ayant droit | ne pas insister : retirer la chaîne ou la documenter comme indisponible en France/Maroc |
+| `dead` | 404, 410, redirection, playlist invalide | chercher l'adresse à jour, sinon retirer |
+| `unreachable` | ni DNS ni réponse, mais d'autres chaînes passent | le diffuseur bloque cette machine ; réessayer depuis un autre réseau |
+| `timeout` | aucune réponse dans les 15 s | réessayer plus tard, la chaîne reste publique |
+
+### Ce que les visiteurs apprennent au catalogue
+
+Chaque ouverture de chaîne envoie un verdict anonyme. Une image affichée passe la chaîne en
+`up` (`cors: true`) ; deux échecs pour un 403/404, trois pour une panne réseau ou CORS,
+la bloquent en `down` avec sa cause.
+
+- La console affiche ces chaînes dans « Bloquées par les visiteurs », avec la cause sur la fiche.
+- Le blocage est réversible : une lecture réussie débloque immédiatement.
+- Garde-fous : un visiteur ne compte qu'une fois par chaîne et par 6 h, 20 verdicts par jour et
+  par visiteur, et 30 blocages par heure au total. Seule une empreinte tronquée est conservée.
+- Si le plafond horaire est atteint, le message le dit : « trop de chaînes ont été bloquées dans
+  l'heure », et rien n'est modifié. Vérifier alors à la main avant de croire le catalogue.
+
+### Le relais ne sauve pas une restriction de zone
+
+Un 403 est une décision du diffuseur, pas un problème de navigateur. Le relais relaie depuis
+un autre réseau, ce qui ne change pas le pays de l'ayant droit et ne contourne aucune licence.
+Une chaîne marquée `[Geo-blocked]` porte désormais « Zone restreinte » sur sa fiche, avant le
+clic.

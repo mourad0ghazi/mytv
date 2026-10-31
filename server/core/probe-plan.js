@@ -35,8 +35,13 @@ export function nextRotatingBatch(channels = [], { cursor = 0, limit = PROBE_NIG
  * Photographie de la mesure : ce qui a été testé, ce qui reste, et ce qui est réellement
  * lisible dans un navigateur (réponse correcte et en-tête CORS présent).
  */
-export function probeStats(channels = []) {
-  const pool = probePool(channels);
+/**
+ * Photographie de la mesure. `withProbe: false` compte tout le catalogue publié, quel que soit
+ * le réglage de visibilité de la pastille : la console ne doit jamais afficher zéro chaîne
+ * parce qu'un bandeau est masqué.
+ */
+export function probeStats(channels = [], { withProbe = true } = {}) {
+  const pool = withProbe ? probePool(channels) : channels.filter((channel) => !channel.deleted);
   const counts = { up: 0, flaky: 0, down: 0, unknown: 0 };
   let measured = 0;
   let readable = 0;

@@ -1,8 +1,8 @@
 // public/js/router.js · routage History API, interception des liens, nettoyage des vues.
 // Aucun rechargement complet : une seule coquille HTML, des vues montées puis démontées.
 
-import { BASE, resolve, withoutBase } from './base.js?v=3.21.0';
-import { consolePath } from './console.js?v=3.21.0';
+import { BASE, resolve, withoutBase } from './base.js?v=3.22.0';
+import { consolePath } from './console.js?v=3.22.0';
 
 const ROUTES = [
   { name: 'home', pattern: /^\/$/, title: 'Catalogue' },

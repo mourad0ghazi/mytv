@@ -1,6 +1,6 @@
 {
   "name": "streamtv",
-  "version": "3.21.0",
+  "version": "3.22.0",
   "private": true,
   "description": "StreamTV — catalogue chaînes en direct, anime, films, lecteur vidéo et console d’administration. Node.js natif, zéro dépendance.",
   "type": "module",
@@ -27,7 +27,8 @@
     "probe": "node scripts/probe-source.js",
     "masquer": "node scripts/masquer-a-risque.mjs",
     "sonde": "node scripts/probe-chaines.js",
-    "rapport:lisibilite": "node scripts/rapport-lisibilite.js"
+    "rapport:lisibilite": "node scripts/rapport-lisibilite.js",
+    "diagnostic:chaine": "node scripts/diagnostic-chaine.js"
   },
   "dependencies": {},
   "devDependencies": {},

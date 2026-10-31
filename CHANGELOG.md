@@ -3,6 +3,53 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 Versionnement sémantique. Toutes les dates sont au format `AAAA-MM-JJ`.
 
+## [3.22.0] - 2026-10-31
+
+Un lecteur qui répond « Signal indisponible » ne dit pas pourquoi. Une chaîne géo-bloquée, une
+adresse morte, un refus CORS du diffuseur et un réseau muet produisaient le même écran. La
+lecture réelle devient maintenant une mesure : cause conservée, catalogue corrigé par les
+visiteurs eux-mêmes, et un diagnostic qui refait le chemin du lecteur étape par étape.
+
+### Ajouté
+
+- **`POST /api/events/lecture`** : le lecteur envoie un verdict, `ok` après la première image,
+  `echec` avec sa cause (`dead`, `geo`, `cors`, `timeout`, `codec`). Anonyme.
+- **`server/core/playback.js`** : seuils (2 signalements pour un refus certain 403/404, 3 pour
+  une panne ambiguë), anti-doublon par visiteur et par chaîne sur 6 h, plafond de 20 verdicts
+  par visiteur et par jour, plafond de 30 blocages par heure pour qu'un bourrage ne puisse pas
+  bloquer tout le catalogue. Seule une empreinte tronquée est conservée, jamais l'adresse.
+- **La lecture réussie vaut mesure** : une image affichée passe la chaîne en `up` avec
+  `cors: true`, et purge ses compteurs d'échec. La sonde serveur n'est plus seule juge.
+- **Blocage après échecs répétés** : `down` + cause + `consecutiveFailures` au seuil du
+  catalogue, journalisé (`channel.lecture`), sans jamais supprimer la chaîne.
+- **Restriction de zone annoncée** : `geoRestricted` sur la carte et la fiche quand la liste
+  d'origine déclare `[Geo-blocked]`, avec un bandeau qui dit que le relais ne contourne pas
+  cette restriction.
+- **`scripts/diagnostic-chaine.js`** et `npm run diagnostic:chaine -- "2M Monde"` : refait DNS,
+  TLS, code HTTP, en-têtes CORS, playlist et premier fragment depuis la machine de
+  l'exploitant, puis conclut (`up`, `cors`, `geo`, `dead`, `unreachable`, `timeout`) avec
+  l'action à faire. Lecture seule, `--json`, code de sortie 1 dès que le flux ne lit pas.
+- **CORS du relais** : préflight `OPTIONS` et en-têtes d'origine pour les seules routes de
+  relais, sur une liste explicite (`STREAMTV_ORIGINES_PUBLIQUES`), jamais `*`. Le reste du
+  site garde sa politique `same-origin`.
+- **Console, onglet Santé** : carte « Bloquées par les visiteurs » et phrase de méthode.
+- **`tests/lecture.test.js`** : 24 tests (seuils, anti-doublon, plafonds, blocage réel par
+  route, déblocage, CORS, diagnostic contre un diffuseur local).
+
+### Modifié
+
+- `probeStats(channels, { withProbe: false })` : la console compte tout le catalogue publié,
+  même quand la pastille publique est masquée, au lieu d'afficher zéro.
+- Le lecteur remet son verdict à zéro à chaque relance : une chaîne peut se rétablir.
+
+### Preuves
+
+- `npm test` : 464 tests, 96 suites, 0 échec.
+- `node scripts/diagnostic-chaine.js "2M Monde"` sur ce bac à sable : DNS résolu
+  (23.46.228.139), `ECONNRESET` avant TLS, verdict `unreachable`, avec la cause réseau citée.
+- Diagnostic contre un diffuseur local : playlist lue, fragment en HTTP 200, verdict `up` ;
+  sans en-tête CORS, verdict `cors` ; 403, verdict `geo` ; 404, verdict `dead`.
+
 ## [3.21.0] - 2026-10-31
 
 Beaucoup de chaînes répondent au serveur et refusent le navigateur : la mesure le voyait

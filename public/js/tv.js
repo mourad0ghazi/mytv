@@ -2,10 +2,10 @@
 // Aucune dépendance : détection de l'appareil, navigation à la télécommande, invite PWA.
 // Le mode TV ne change jamais le contenu : il agrandit le texte et élargit les cibles.
 
-import { api } from './api.js?v=3.21.0';
-import { h, toast } from './ui.js?v=3.21.0';
-import { prefs } from './prefs.js?v=3.21.0';
-import { getPlayer } from './player.js?v=3.21.0';
+import { api } from './api.js?v=3.22.0';
+import { h, toast } from './ui.js?v=3.22.0';
+import { prefs } from './prefs.js?v=3.22.0';
+import { getPlayer } from './player.js?v=3.22.0';
 
 /** Appareils qui se pilotent à la télécommande, pas au doigt. */
 const TV_UA = /Android TV|Google ?TV|Smart-?TV|Tizen|webOS|NetCast|HbbTV|BRAVIA|AFT[A-Z0-9]|Roku|AppleTV/i;

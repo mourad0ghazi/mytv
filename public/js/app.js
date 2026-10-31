@@ -1,35 +1,35 @@
 // public/js/app.js · amorçage de la coquille, en-tête, bannières, routeur, enregistrement du service worker.
 // Une seule instance d'application : #main est le seul point de montage des vues.
 
-import { api, ApiError, auth } from './api.js?v=3.21.0';
-import { consoleHref, loginHref, rememberConsole } from './console.js?v=3.21.0';
-import { COPY } from './copy.js?v=3.21.0';
-import { h, icon, toast, modal, spinner, debounce } from './ui.js?v=3.21.0';
-import { createRouter } from './router.js?v=3.21.0';
-import { getPlayer } from './player.js?v=3.21.0';
-import { applyTvMode, wireTvKeys, wireInstall } from './tv.js?v=3.21.0';
-import { prefs } from './prefs.js?v=3.21.0';
-import { BASE, withBase } from './base.js?v=3.21.0';
-import { PLAFOND_AMORCAGE, avecPlafond } from './amorcage.js?v=3.21.0';
+import { api, ApiError, auth } from './api.js?v=3.22.0';
+import { consoleHref, loginHref, rememberConsole } from './console.js?v=3.22.0';
+import { COPY } from './copy.js?v=3.22.0';
+import { h, icon, toast, modal, spinner, debounce } from './ui.js?v=3.22.0';
+import { createRouter } from './router.js?v=3.22.0';
+import { getPlayer } from './player.js?v=3.22.0';
+import { applyTvMode, wireTvKeys, wireInstall } from './tv.js?v=3.22.0';
+import { prefs } from './prefs.js?v=3.22.0';
+import { BASE, withBase } from './base.js?v=3.22.0';
+import { PLAFOND_AMORCAGE, avecPlafond } from './amorcage.js?v=3.22.0';
 
-import { renderHome } from './views/home.js?v=3.21.0';
-import { renderGuide } from './views/guide.js?v=3.21.0';
-import { renderChannel } from './views/channel.js?v=3.21.0';
-import { renderFavorites } from './views/favorites.js?v=3.21.0';
-import { renderLogin } from './views/login.js?v=3.21.0';
-import { renderAccess } from './views/access.js?v=3.21.0';
-import { renderAnime, renderAnimeDetail } from './views/anime.js?v=3.21.0';
-import { renderFilms, renderFilmDetail } from './views/films.js?v=3.21.0';
-import { renderSearch } from './views/search.js?v=3.21.0';
-import { renderCompte } from './views/compte.js?v=3.21.0';
+import { renderHome } from './views/home.js?v=3.22.0';
+import { renderGuide } from './views/guide.js?v=3.22.0';
+import { renderChannel } from './views/channel.js?v=3.22.0';
+import { renderFavorites } from './views/favorites.js?v=3.22.0';
+import { renderLogin } from './views/login.js?v=3.22.0';
+import { renderAccess } from './views/access.js?v=3.22.0';
+import { renderAnime, renderAnimeDetail } from './views/anime.js?v=3.22.0';
+import { renderFilms, renderFilmDetail } from './views/films.js?v=3.22.0';
+import { renderSearch } from './views/search.js?v=3.22.0';
+import { renderCompte } from './views/compte.js?v=3.22.0';
 
 /**
  * Chargements différés : la console d'administration et les pages légales ne sont
  * téléchargées qu'au moment où elles sont ouvertes (premier rendu plus rapide, AC-032).
  */
-const loadAdmin = () => import('./views/admin.js?v=3.21.0');
-const loadLegal = () => import('./views/legal.js?v=3.21.0');
-import { renderNotFound, renderFailure, renderOffline } from './views/error.js?v=3.21.0';
+const loadAdmin = () => import('./views/admin.js?v=3.22.0');
+const loadLegal = () => import('./views/legal.js?v=3.22.0');
+import { renderNotFound, renderFailure, renderOffline } from './views/error.js?v=3.22.0';
 
 /* Plafond dur de cartes « chaîne » simultanées dans le DOM (§2.4, BUG-12). */
 export const MAX_DOM_CARDS = 120;

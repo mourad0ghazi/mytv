@@ -1,11 +1,11 @@
 // public/js/views/search.js · recherche globale : chaînes, anime et films dans une seule liste.
 // Chaque résultat dit son type par un mot (Chaîne, Anime, Film), jamais par une couleur.
 
-import { api } from '../api.js?v=3.21.0';
-import { withBase } from '../base.js?v=3.21.0';
-import { COPY } from '../copy.js?v=3.21.0';
-import { h, icon, fmtNumber, emptyState, spinner, logoNode } from '../ui.js?v=3.21.0';
-import { prefs } from '../prefs.js?v=3.21.0';
+import { api } from '../api.js?v=3.22.0';
+import { withBase } from '../base.js?v=3.22.0';
+import { COPY } from '../copy.js?v=3.22.0';
+import { h, icon, fmtNumber, emptyState, spinner, logoNode } from '../ui.js?v=3.22.0';
+import { prefs } from '../prefs.js?v=3.22.0';
 
 const KIND_TONE = { chaine: 'Chaîne', anime: 'Anime', film: 'Film' };
 

@@ -1,11 +1,11 @@
 // public/js/views/favorites.js · écran 5 : favoris et historique, strictement locaux (AC-033).
 // Aucune requête réseau : ces listes vivent dans le stockage du navigateur.
 
-import { api } from '../api.js?v=3.21.0';
-import { COPY } from '../copy.js?v=3.21.0';
-import { h, icon, fmtRelative, emptyState, logoNode, toast, modal } from '../ui.js?v=3.21.0';
-import { getPlayer } from '../player.js?v=3.21.0';
-import { prefs } from '../prefs.js?v=3.21.0';
+import { api } from '../api.js?v=3.22.0';
+import { COPY } from '../copy.js?v=3.22.0';
+import { h, icon, fmtRelative, emptyState, logoNode, toast, modal } from '../ui.js?v=3.22.0';
+import { getPlayer } from '../player.js?v=3.22.0';
+import { prefs } from '../prefs.js?v=3.22.0';
 
 function row(item, { onPlay, onOpen, onRemove }) {
   return h('div', { class: 'row-card', dataset: { channelId: item.id } },

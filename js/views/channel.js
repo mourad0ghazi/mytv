@@ -1,15 +1,15 @@
 // public/js/views/channel.js · écran 4 : fiche d'une chaîne (détail, variantes, chaînes proches).
 
-import { api } from '../api.js?v=3.21.0';
-import { COPY } from '../copy.js?v=3.21.0';
+import { api } from '../api.js?v=3.22.0';
+import { COPY } from '../copy.js?v=3.22.0';
 import {
   h, icon, fmtNumber, fmtRelative, spinner, emptyState, logoNode, healthBadge, toast, copyText,
   countryName, languageName,
-} from '../ui.js?v=3.21.0';
-import { channelCard, paintNow } from '../components.js?v=3.21.0';
-import { heureCourte, primeNow } from '../epg-now.js?v=3.21.0';
-import { getPlayer } from '../player.js?v=3.21.0';
-import { prefs } from '../prefs.js?v=3.21.0';
+} from '../ui.js?v=3.22.0';
+import { channelCard, paintNow } from '../components.js?v=3.22.0';
+import { heureCourte, primeNow } from '../epg-now.js?v=3.22.0';
+import { getPlayer } from '../player.js?v=3.22.0';
+import { prefs } from '../prefs.js?v=3.22.0';
 
 /**
  * 3.20.0 · ce que la mesure dit vraiment du flux, en une phrase.
@@ -208,10 +208,19 @@ export async function renderChannel(container, ctx, id) {
           channel.country ? h('span', { class: 'badge' }, countryName(channel.country)) : null,
           channel.language ? h('span', { class: 'badge' }, languageName(channel.language)) : null,
           healthBadge(channel.health),
+          channel.geoRestricted ? h('span', { class: 'badge', dataset: { tone: 'warn' } }, 'Zone restreinte') : null,
           channel.featured ? h('span', { class: 'badge', dataset: { tone: 'warn' } }, 'En vedette') : null),
         h('div', { class: 'hero-actions', style: { marginTop: '18px' } }, playButton, favoriteBtn, copyBtn),
         programmeStrip),
     ),
+    // Annoncé par la liste d'origine : le dire avant le clic évite l'écran d'erreur.
+    channel.geoRestricted ? h('div', { class: 'banner', dataset: { tone: 'warn' }, style: { marginTop: '18px' } },
+      icon('alert', 16),
+      h('div', {},
+        h('p', { style: { fontWeight: '600' } }, 'Chaîne réservée à un autre pays'),
+        h('p', { class: 'muted', style: { fontSize: '13px' } },
+          'Le diffuseur déclare une restriction de zone. Hors de cette zone, le flux répond « non disponible » : '
+          + 'ce n’est pas une panne du site, et le relais ne contourne pas cette restriction.'))) : null,
     channel.healthDetail ? (() => {
       const mesure = phraseMesure(channel.healthDetail, channel.relay || {});
       // Une chaîne mesurée disponible n'a pas besoin d'un bandeau : la pastille suffit.

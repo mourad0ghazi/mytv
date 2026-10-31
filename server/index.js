@@ -31,6 +31,7 @@ import { sendError, sendSecurityHeaders, sendText } from './http/respond.js';
 import { resolvePublic, serveStatic } from './http/static.js';
 import { registerPublicRoutes } from './api/public.js';
 import { registerRelayRoutes } from './api/relay.js';
+import { PlaybackLedger } from './core/playback.js';
 import { registerReportRoutes } from './api/report.js';
 import { registerConsoleRoutes } from './api/console.js';
 import { registerAdminRoutes } from './api/admin.js';
@@ -52,6 +53,16 @@ const logger = {
   error: (message) => process.stderr.write(`[${new Date().toISOString()}] ERREUR ${message}\n`),
   debug: () => {},
 };
+
+/**
+ * Origines tierces autorisées à lire un média relayé, séparées par des virgules.
+ * Vide par défaut : le site sert son propre lecteur et ne prête son relais à personne.
+ * Jamais « * » : une liste vide n'ouvre rien.
+ */
+function originesPubliques() {
+  return String(process.env.STREAMTV_ORIGINES_PUBLIQUES || '')
+    .split(',').map((item) => item.trim()).filter(Boolean);
+}
 
 function buildContentSecurity() {
   return { https: Boolean(process.env.HTTPS) };
@@ -219,10 +230,14 @@ export async function createApp() {
     sessions: app.sessions,
     logger,
     authorize: (session, permission) => can(session?.role, permission),
+    // Origines tierces admises pour le relais : liste explicite, jamais « * ».
+    config: { corsOrigins: originesPubliques() },
   });
   registerPublicRoutes(router, app);
   // Essai local et tests : le relais accepte HTTP sur la boucle locale. Jamais en production.
   app.relayInsecure = process.env.STREAMTV_RELAIS_HTTP === '1';
+  // Verdicts de lecture : compteurs en mémoire, plafonnés par visiteur (anti-abus).
+  app.playback = new PlaybackLedger();
   registerRelayRoutes(router, app);
   registerVodRoutes(router, app);
   registerAdminRoutes(router, app);
@@ -300,6 +315,13 @@ export async function main(options = {}) {
     }
   }
 
+
+  const origineInterSite = (valeur) => {
+    const origine = String(valeur || '').trim();
+    if (!origine || origine === 'null') return '';
+    return originesPubliques().includes(origine) ? origine : '';
+  };
+
   const handler = async (req, res) => {
     const started = Date.now();
     try {
@@ -318,6 +340,15 @@ export async function main(options = {}) {
       if (pathname.length > 512) { sendText(req, res, 414, 'Adresse trop longue.'); return; }
 
       const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '';
+
+      // Le relais est lu par hls.js, éventuellement depuis un autre site autorisé : la
+      // politique « same-origin » du reste du site l'empêcherait d'arriver.
+      const origine = origineInterSite(req.headers.origin);
+      if (origine && pathname.startsWith('/api/relais/')) {
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+        res.setHeader('Access-Control-Allow-Origin', origine);
+        res.setHeader('Vary', 'Origin');
+      }
 
       if (await router.handle(req, res, { https, ip, security: app.store.security })) return;
 

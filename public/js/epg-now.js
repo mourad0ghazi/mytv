@@ -2,7 +2,7 @@
 // Chargé au survol ou au focus d'une carte, jamais au chargement de la page.
 // Trois règles : une seule requête par lot, cache mémoire de 5 minutes, silence total en cas d'échec.
 
-import { api } from './api.js?v=3.21.0';
+import { api } from './api.js?v=3.22.0';
 
 const DUREE_CACHE = 5 * 60 * 1000;
 const cache = new Map();

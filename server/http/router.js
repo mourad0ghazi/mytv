@@ -29,6 +29,49 @@ function compile(pattern) {
   return { regex: new RegExp(`^${source}/?$`), keys };
 }
 
+/**
+ * En-têtes CORS d'une réponse lue par un autre site : seulement l'origine autorisée par la
+ * route, jamais « * ». Aucune donnée personnelle ne doit être atteignable ainsi.
+ */
+/**
+ * Origines admises pour une route : celles qu'elle déclare, ou — pour les seules routes de
+ * média marquées `preflight` (le relais) — celles configurées par l'exploitant. Le reste du
+ * site ne s'ouvre jamais, même à une origine déclarée.
+ */
+function originesAdmises(route, configOrigines = []) {
+  if (!route) return [];
+  if (route.corsOrigin) return [route.corsOrigin];
+  if (!route.preflight) return [];
+  return Array.isArray(configOrigines) ? configOrigines : [];
+}
+
+function corsHeadersFor(req, route, { configOrigines = [], override = '' } = {}) {
+  const origin = String(req.headers.origin || '');
+  const admises = override ? [override] : originesAdmises(route, configOrigines);
+  if (!origin || !admises.includes(origin)) return {};
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Expose-Headers': 'Content-Length, Content-Range',
+    'Cross-Origin-Resource-Policy': 'cross-origin',
+    Vary: 'Origin',
+  };
+}
+
+/** Réponse au préflight : méthode, en-têtes et durée, puis 204 sans contenu. */
+function sendCorsPreflight(req, res, route, requestId, configOrigines = []) {
+  const headers = corsHeadersFor(req, route, { configOrigines });
+  res.statusCode = 204;
+  if (headers['Access-Control-Allow-Origin']) {
+    for (const [cle, valeur] of Object.entries(headers)) res.setHeader(cle, valeur);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, HEAD, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Max-Age', '600');
+  }
+  if (requestId) res.setHeader('X-Request-Id', requestId);
+  res.setHeader('Cache-Control', 'no-store');
+  res.end();
+}
+
 export class Router {
   constructor({ sessions = null, logger = console, config = {}, authorize = null } = {}) {
     this.routes = [];
@@ -37,6 +80,8 @@ export class Router {
     this.authorize = authorize;
     this.logger = logger;
     this.config = config;
+    // Origines tierces admises à lire un média relayé : décision explicite de l'exploitant.
+    this.corsOrigins = Array.isArray(config.corsOrigins) ? config.corsOrigins : [];
   }
 
   add(method, pattern, handler, options = {}) {
@@ -51,6 +96,10 @@ export class Router {
       permission: options.permission || '',
       bodyLimit: options.bodyLimit ?? LIMITS.maxBodyPublic,
       allowBody: options.allowBody !== false,
+      // Origine autorisée à lire la réponse ; vide = celles configurées au routeur.
+      corsOrigin: options.corsOrigin || '',
+      // Préflight : seules les routes qui le déclarent répondent à OPTIONS.
+      preflight: Boolean(options.preflight),
       name: options.name || '',
     });
     return this;
@@ -77,7 +126,9 @@ export class Router {
     // Les routes statiques priment sur les routes paramétrées : /api/channels/search avant /api/channels/:id.
     found.sort((a, b) => a.route.keys.length - b.route.keys.length);
     const exact = found.find((item) => item.route.method === method)
-      || (method === 'HEAD' ? found.find((item) => item.route.method === 'GET') : null);
+      || (method === 'HEAD' || method === 'OPTIONS'
+        ? found.find((item) => item.route.method === 'GET')
+        : null);
     const allowed = [...new Set(found.map((item) => item.route.method).concat(found.some((item) => item.route.method === 'GET') ? ['HEAD'] : []))];
     return { route: exact?.route || null, params: exact?.params || {}, allowed };
   }
@@ -127,6 +178,14 @@ export class Router {
 
     const method = req.method === 'HEAD' ? 'HEAD' : req.method;
     const { route, params, allowed } = this.match(method, pathname);
+
+    // Préflight CORS : seules les routes qui l'autorisent répondent, et seulement à l'origine
+    // appelante. Sans cela, le navigateur bloquerait l'envoi réel avant même de le tenter.
+    if (method === 'OPTIONS' && route?.preflight) {
+      sendCorsPreflight(req, res, route, requestId, this.corsOrigins);
+      this.logRequest(method, pathname, 204, started);
+      return true;
+    }
     if (!route) {
       if (allowed.length) {
         sendError(req, res, 'ERR-12', { headers: { Allow: allowed.join(', ') }, requestId });
@@ -225,7 +284,10 @@ export class Router {
       }
       sendJson(req, res, result.status || 200, result.body ?? {}, {
         cache: result.cache || 'no-store',
-        headers: result.headers || {},
+        headers: {
+          ...(result.cors === false ? {} : corsHeadersFor(req, route, { configOrigines: this.corsOrigins, override: result.corsOrigin || '' })),
+          ...(result.headers || {}),
+        },
         requestId,
       });
       this.logRequest(method, pathname, result.status || 200, started);

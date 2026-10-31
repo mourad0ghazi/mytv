@@ -2,9 +2,9 @@
 // Un lien, un rôle, une durée : celui qui reçoit le lien entre dans la console sans mot de passe.
 // Le jeton n'est affiché qu'à la création, puis il n'existe plus nulle part.
 
-import { Admin } from '../../api.js?v=3.21.0';
-import { copyText, h, icon, spinner, emptyState, toast, fmtNumber } from '../../ui.js?v=3.21.0';
-import { apiGuard } from './common.js?v=3.21.0';
+import { Admin } from '../../api.js?v=3.22.0';
+import { copyText, h, icon, spinner, emptyState, toast, fmtNumber } from '../../ui.js?v=3.22.0';
+import { apiGuard } from './common.js?v=3.22.0';
 
 const DUREES = [
   [15, '15 minutes'],

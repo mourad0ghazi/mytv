@@ -1,11 +1,11 @@
 // public/js/views/admin/health.js · onglet Santé : sonde bornée, états up/flaky/down/unknown.
 // Une sonde ne bloque jamais la console : elle est plafonnée en durée et en nombre.
 
-import { Admin } from '../../api.js?v=3.21.0';
-import { h, icon, modal, toast, spinner, emptyState, fmtNumber, healthLabel } from '../../ui.js?v=3.21.0';
-import { statCard } from '../../components.js?v=3.21.0';
-import { confirmModal, apiGuard } from './common.js?v=3.21.0';
-import { channelModal } from './catalogue.js?v=3.21.0';
+import { Admin } from '../../api.js?v=3.22.0';
+import { h, icon, modal, toast, spinner, emptyState, fmtNumber, healthLabel } from '../../ui.js?v=3.22.0';
+import { statCard } from '../../components.js?v=3.22.0';
+import { confirmModal, apiGuard } from './common.js?v=3.22.0';
+import { channelModal } from './catalogue.js?v=3.22.0';
 
 /* ------------------------------------------------------------------ F-22 : apprentissage */
 
@@ -156,13 +156,17 @@ async function renderHealth(host, ctx, state, { refreshStats, stats }) {
         `${fmtNumber(mesure.nights || 0)} nuit${(mesure.nights || 0) > 1 ? 's' : ''} pour finir le tour`,
         (mesure.remaining || 0) > 0 ? 'warn' : 'ok'),
       statCard('Lisibles au navigateur', fmtNumber(mesure.readable || 0),
-        `${fmtNumber(mesure.corsMissing || 0)} sans CORS`, (mesure.readable || 0) ? 'ok' : '')),
+        `${fmtNumber(mesure.corsMissing || 0)} sans CORS`, (mesure.readable || 0) ? 'ok' : ''),
+      statCard('Bloquées par les visiteurs', fmtNumber(current.lecture?.down || 0),
+        'lecture réelle en échec', (current.lecture?.down || 0) ? 'warn' : 'ok')),
     alertPanel(alerts, () => renderHealth(host, ctx, state, { refreshStats, stats })),
     h('section', { class: 'panel', style: { marginTop: '16px' } },
       h('p', { class: 'eyebrow' }, 'Mesure'),
       h('h2', { style: { fontSize: '20px', marginBottom: '4px' } }, 'Sonde de disponibilité'),
       h('p', { class: 'muted', style: { marginBottom: '12px' } },
-        'Concurrence 8, délai 6 secondes, plafond de 300 sondes par minute. '
+        'Le lecteur du visiteur est aussi un témoin : une lecture réussie vaut mesure, '
+        + 'deux à trois échecs constatés bloquent la chaîne (plafond de 30 blocages par heure). '
+        + 'Concurrence 8, délai 6 secondes, plafond de 300 sondes par minute. '
         + `La ronde nocturne teste ${fmtNumber(mesure.nightlyLimit || 150)} chaînes par nuit, `
         + 'dans l’ordre du catalogue, et retient sa position.'),
       h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } }, limit, probeBtn, rondeBtn),
