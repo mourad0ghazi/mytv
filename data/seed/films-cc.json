@@ -1,0 +1,23 @@
+{
+  "sourceId": "films-ouverts-cc",
+  "licence": "Creative Commons Attribution 3.0 / 4.0 (CC BY)",
+  "items": [
+    {
+      "id": "tears-of-steel",
+      "title": "Tears of Steel",
+      "originalTitle": "Tears of Steel",
+      "synopsis": "Dans un Amsterdam futuriste, un groupe de résistants et de scientifiques tente de rejouer un souvenir décisif pour sauver la ville des machines.",
+      "durationSeconds": 734,
+      "year": 2012,
+      "genres": ["Science-fiction", "Action"],
+      "director": "Ian Hubert",
+      "language": "VOSTFR",
+      "poster": "/posters/film-tears-of-steel.svg",
+      "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+      "quality": "FHD",
+      "licence": "Creative Commons Attribution 3.0 (CC BY 3.0)",
+      "country": "NL",
+      "createdAt": "2026-10-20T15:00:00.000Z"
+    }
+  ]
+}

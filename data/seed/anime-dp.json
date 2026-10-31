@@ -1,0 +1,51 @@
+{
+  "sourceId": "anime-classiques-dp",
+  "licence": "Domaine public",
+  "items": [
+    {
+      "id": "superman-fleischer",
+      "title": "Superman (série Fleischer)",
+      "originalTitle": "Superman",
+      "synopsis": "Série d’animation historique produite par les studios Fleischer entre 1941 et 1942, célèbre pour son animation en rotoscopie et ses décors Art déco.",
+      "year": 1941,
+      "genres": ["Action", "Science-fiction"],
+      "studio": "Fleischer Studios",
+      "language": "VO",
+      "status": "termine",
+      "section": "classiques",
+      "poster": "/posters/anime-superman-fleischer.svg",
+      "licence": "Domaine public",
+      "country": "US",
+      "createdAt": "2026-10-08T11:00:00.000Z",
+      "episodes": [
+        {
+          "id": "superman-ep-1",
+          "number": 1,
+          "title": "Le Savant fou",
+          "durationSeconds": 625,
+          "url": "https://archive.org/download/superman_1941/superman_1941_512kb.mp4",
+          "quality": "SD",
+          "language": "VO"
+        },
+        {
+          "id": "superman-ep-2",
+          "number": 2,
+          "title": "Les Monstres mécaniques",
+          "durationSeconds": 618,
+          "url": "https://archive.org/download/the_mechanical_monsters/the_mechanical_monsters_512kb.mp4",
+          "quality": "SD",
+          "language": "VO"
+        },
+        {
+          "id": "superman-ep-3",
+          "number": 3,
+          "title": "Le Train milliardaire",
+          "durationSeconds": 545,
+          "url": "https://archive.org/download/billion_dollar_limited/billion_dollar_limited_512kb.mp4",
+          "quality": "SD",
+          "language": "VO"
+        }
+      ]
+    }
+  ]
+}

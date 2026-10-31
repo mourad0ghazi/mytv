@@ -1,0 +1,23 @@
+# StreamTV — publication en un clic sur Render (https://render.com/docs/blueprint-spec).
+# Le disque persistant conserve le catalogue, les réglages, les sauvegardes et le journal.
+services:
+  - type: web
+    name: streamtv
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    healthCheckPath: /healthz
+    autoDeploy: true
+    disk:
+      name: streamtv-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /app/data
+      - key: HTTPS
+        value: "1"
+      - key: ADMIN_PASSWORD
+        sync: false

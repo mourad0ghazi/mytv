@@ -1,0 +1,25 @@
+# StreamTV — déploiement sur un serveur à soi (VPS, NAS, machine de bureau).
+#   echo "ADMIN_PASSWORD=$(openssl rand -base64 24)" > .env
+#   docker compose up -d
+services:
+  streamtv:
+    build: .
+    image: ghcr.io/mourad0ghazi/myiptv:3.3.0
+    container_name: streamtv
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?definissez ADMIN_PASSWORD dans .env}
+      DATA_DIR: /app/data
+      HTTPS: ${HTTPS:-0}
+      PORT: "3000"
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

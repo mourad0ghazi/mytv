@@ -1,0 +1,5 @@
+#EXTM3U
+#EXTINF:-1 group-title="xxx",Adulte Un
+https://example.com/adult1.m3u8
+#EXTINF:-1 group-title="General",Visible Deux
+https://example.com/visible2.m3u8

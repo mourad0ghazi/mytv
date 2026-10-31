@@ -1,0 +1,30 @@
+#EXTM3U x-tvg-url="https://example.com/epg.xml"
+#PLAYLIST:Fixture StreamTV
+#EXTINF:-1 tvg-id="AlphaNews.fr" tvg-name="Alpha News" tvg-logo="https://example.com/alpha.png" group-title="News",Alpha News HD
+https://example.com/alpha.m3u8
+#EXTINF:-1 tvg-id="BetaSport.ma" group-title="Sports",Beta Sport 1 (1080p)
+https://example.com/beta.m3u8
+#EXTGRP:Kids
+#EXTINF:-1 tvg-id="GammaKids.fr",Gamma Kids
+https://example.com/gamma.m3u8
+#EXTINF:-1 group-title="Cinema",Delta Cinéma
+https://example.com/delta.m3u8
+#EXTINF:-1 group-title="Music",Epsilon Music
+https://example.com/epsilon.m3u8
+#EXTINF:-1 group-title="General",Zeta Télé
+https://example.com/zeta.m3u8
+#EXTINF:-1 group-title="Religious",Eta Coran
+https://example.com/eta.m3u8
+#EXTINF:-1 group-title="Cooking",Theta Cuisine
+https://example.com/theta.m3u8
+#EXTINF:-1 group-title="Documentary",Iota Nature
+https://example.com/iota.m3u8
+#EXTINF:-1 group-title="News",Kappa Info
+http://example.com/kappa.m3u8
+#EXTINF:-1 group-title="News",Kappa Info HD
+https://example.com/kappa.m3u8
+#EXTINF:-1 group-title="Kids",Lambda Junior
+https://example.com/lambda.m3u8
+#EXTVLCOPT:http-user-agent=FixturePlayer/1.0
+#EXTINF:-1 group-title="News",Mu Protégée
+https://example.com/mu.m3u8

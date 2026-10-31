@@ -1,0 +1,40 @@
+{
+  "name": "streamtv",
+  "version": "3.18.0",
+  "private": true,
+  "description": "StreamTV — catalogue chaînes en direct, anime, films, lecteur vidéo et console d’administration. Node.js natif, zéro dépendance.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "test": "node --test tests/*.test.js",
+    "test:watch": "node --test --watch tests/*.test.js",
+    "ingest": "node scripts/ingest.js",
+    "measure": "node scripts/measure-tagger.js",
+    "backup": "node scripts/backup.js",
+    "verify": "node scripts/verify.js --base http://127.0.0.1:3000",
+    "versionner": "node scripts/versionner-modules.js",
+    "versionner:check": "node scripts/versionner-modules.js --check",
+    "epg:demo": "node scripts/make-epg-demo.js",
+    "migrate": "node scripts/migrate.js --plan",
+    "migrate:verify": "node scripts/migrate.js --verify",
+    "build:static": "node scripts/build-static.js --source http://127.0.0.1:3000 --base /mytv/ --out dist-static --copy-to .",
+    "probe": "node scripts/probe-source.js",
+    "masquer": "node scripts/masquer-a-risque.mjs",
+    "sonde": "node scripts/probe-chaines.js"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "license": "UNLICENSED",
+  "keywords": [
+    "iptv",
+    "m3u",
+    "streamtv",
+    "nodejs",
+    "zero-dependency"
+  ]
+}

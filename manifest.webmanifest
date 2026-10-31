@@ -1,0 +1,59 @@
+{
+  "id": "/mytv/",
+  "name": "StreamTV · Toute la télévision",
+  "short_name": "StreamTV",
+  "description": "Catalogue de chaînes en direct, guide de zapping, lecteur vidéo et console d’administration. La télévision, sans friction.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "/mytv/?utm_source=pwa",
+  "scope": "/mytv/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#06070b",
+  "theme_color": "#06070b",
+  "categories": [
+    "entertainment",
+    "news",
+    "video"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Guide des chaînes",
+      "short_name": "Guide",
+      "url": "guide",
+      "description": "Parcourir les chaînes par catégorie"
+    },
+    {
+      "name": "Favoris",
+      "short_name": "Favoris",
+      "url": "favoris",
+      "description": "Vos chaînes enregistrées sur cet appareil"
+    }
+  ]
+}
