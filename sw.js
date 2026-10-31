@@ -21,7 +21,7 @@ const COQUILLE = [
   'js/player-menu.js', 'js/components.js', 'js/tv.js', 'js/epg-now.js', 'js/preview.js',
   'js/views/home.js', 'js/views/guide.js', 'js/views/channel.js', 'js/views/favorites.js',
   'js/views/login.js', 'js/views/access.js', 'js/views/admin.js', 'js/views/legal.js',
-  'js/views/error.js', 'js/views/error-codes.js', 'js/vod-ui.js', 'js/views/anime.js',
+  'js/views/error.js', 'js/views/error-codes.js', 'js/doc-anchor.js', 'js/vod-ui.js', 'js/views/anime.js',
   'js/views/films.js', 'js/views/search.js', 'js/player-similar.js',
   'js/views/admin/sources.js', 'js/views/admin/vod.js', 'js/views/admin/doc.js',
   'manifest.webmanifest', 'icons/favicon.svg',
