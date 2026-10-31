@@ -16,6 +16,8 @@ const ACTIONS = {
   'channel.bulk': { ton: 'warn', phrase: (e) => `Action groupée sur ${compte(e.count)}${actionGroupee(e.detail)}` },
   'channel.create': { ton: 'info', phrase: (e) => `Chaîne ajoutée${suffixe(e.detail)}` },
   'channel.delete': { ton: 'warn', phrase: (e) => `Chaîne retirée${suffixe(e.detail)}` },
+  // Verdict de lecture : la chaîne n'est pas supprimée, elle est constatée hors service.
+  'channel.lecture': { ton: 'warn', phrase: (e) => `Lecture en échec constatée${suffixe(e.detail)}` },
   'channel.restore': { ton: 'info', phrase: (e) => `Chaîne restaurée${suffixe(e.detail)}` },
   'channel.tag': { ton: 'info', phrase: (e) => `Catégorie changée${suffixe(e.detail)}` },
   'channel.update': { ton: 'info', phrase: (e) => `Chaîne modifiée${suffixe(e.detail)}` },

@@ -2,9 +2,9 @@
 // Trois blocs : la conclusion de l'agent, ce qui est réellement regardé, ce qui a été fait.
 // Aucune décoration : une couleur d'état, une bordure, des chiffres tabulaires.
 
-import { Admin } from '../../api.js?v=3.19.0';
-import { h, icon, fmtNumber, spinner, emptyState, toast } from '../../ui.js?v=3.19.0';
-import { statCard } from '../../components.js?v=3.19.0';
+import { Admin } from '../../api.js?v=3.22.0';
+import { h, icon, fmtNumber, spinner, emptyState, toast } from '../../ui.js?v=3.22.0';
+import { statCard } from '../../components.js?v=3.22.0';
 
 const SEVERITE = {
   critique: { label: 'Critique', tone: 'danger', icon: 'alert' },

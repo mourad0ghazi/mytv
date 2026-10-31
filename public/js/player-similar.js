@@ -2,8 +2,8 @@
 // Extrait de player.js pour garder chaque fichier sous 900 lignes : ici, uniquement
 // la construction du DOM des panneaux et des mires, sans état de lecture.
 
-import { COPY } from './copy.js?v=3.19.0';
-import { h, icon } from './ui.js?v=3.19.0';
+import { COPY } from './copy.js?v=3.22.0';
+import { h, icon } from './ui.js?v=3.22.0';
 
 /** Code de mire correspondant à un motif de blocage connu. */
 export function mireForBlocked(blocked) {

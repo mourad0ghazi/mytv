@@ -45,6 +45,7 @@ Chaque code ci-dessous est écrit dans `data/audit.json` et traduit par la conso
 | `channel.bulk` | Action groupée sur un nombre de chaînes |
 | `channel.create` | Chaîne ajoutée |
 | `channel.delete` | Chaîne retirée |
+| `channel.lecture` | Lecture en échec constatée chez les visiteurs, chaîne bloquée |
 | `channel.restore` | Chaîne restaurée |
 | `channel.tag` | Catégorie changée |
 | `channel.update` | Chaîne modifiée |
@@ -247,9 +248,56 @@ Sonde bornée des flux, sans jamais bloquer la console.
 
 - Quatre états : `up` (joignable), `flaky` (instable), `down` (hors service), `unknown` (non
   testée).
-- La sonde est plafonnée en durée et en nombre de flux testés par passe.
+- La sonde est plafonnée en durée et en nombre de flux testés par passe : 8 flux en parallèle,
+  6 secondes par flux, 300 sondes par minute.
+- **Ronde rotative (3.20.0)** : la tâche nocturne teste 150 chaînes par nuit, dans l'ordre du
+  catalogue, et retient sa position dans `data/health.json` (`probe.cursor`). Un redémarrage
+  reprend au même endroit ; un tour complet demandait auparavant 37 nuits sur les 40 mêmes
+  chaînes, il en demande désormais 10 sur tout le catalogue. Le bouton « Sonder le lot
+  suivant » rejoue une ronde sans attendre 3 h du matin.
+- La mesure conserve sa **cause** (`ok`, `geo`, `dead`, `cors`, `slow`, `server`, `unreachable`).
+  La fiche publique affiche la date de mesure, la cause et la lisibilité navigateur.
+- Le filtre public `etat=lisibles` ne garde que les chaînes mesurées joignables ; le bouton
+  « Flux vérifiés » de l'accueil s'appuie dessus. `etat=mesures` garde toutes les chaînes
+  testées, quel que soit le verdict.
+- Trois échecs consécutifs bloquent une chaîne (`dead` ou `geo`) ; une réponse correcte la
+  débloque. Aucun flux n'est supprimé par une sonde : un flux hors service est signalé, pas
+  retiré.
 - Les résultats alimentent la pastille publique quand `showHealthBadge` est actif.
-- Aucun flux n'est supprimé par une sonde : un flux hors service est signalé, pas retiré.
+
+Routes : `POST /api/admin/health/probe` (file des chaînes jamais testées),
+`POST /api/admin/health/ronde` (lot suivant du catalogue, `ids` pour cibler 100 chaînes au
+plus), `GET /api/admin/health/resume` (photographie de la mesure, sans sonder).
+
+### Verdicts de lecture (3.22.0)
+
+Le visiteur est un témoin : le lecteur envoie, sans compte ni identité, « ça lit » après la
+première image, ou « ça ne lit pas » avec la cause (`dead`, `geo`, `cors`, `timeout`, `codec`).
+
+- Une lecture réussie vaut mesure : la chaîne passe `up` et ses échecs sont purgés.
+- Deux échecs certains (403, 404) ou trois échecs ambigus bloquent la chaîne (`down`), avec sa
+  cause et une entrée de journal `channel.lecture`. Aucune chaîne n'est supprimée.
+- Garde-fous : une fois par visiteur et par chaîne sur 6 h, 20 verdicts par jour et par
+  visiteur, 30 blocages par heure au total. Seule une empreinte tronquée est conservée.
+- Carte « Bloquées par les visiteurs » dans l'onglet Santé.
+
+### Relais des flux (3.21.0)
+
+Une chaîne peut répondre au serveur et refuser le navigateur : la cause est `cors`. Le serveur
+relit alors le flux pour le compte du visiteur, sans jamais sortir du catalogue.
+
+- **Liste blanche** : seuls les hôtes des chaînes dont la source (ou la fiche) déclare une
+  licence sont relayés. Ni IP littérale, ni HTTP, ni redirection, ni adresse hors liste.
+- **Fragments réécrits** : variantes, fragments, clés `#EXT-X-KEY`, cartes `#EXT-X-MAP` et
+  pistes `#EXT-X-MEDIA` passent par `/api/relais/:id/s?u=…`. Une adresse hors liste reste en
+  clair : elle n'est jamais servie par le site.
+- **Plafonds** : 512 Ko par playlist, 12 Mo par fragment, 15 s par requête, 32 requêtes de
+  relais simultanées. Au-delà : ERR-15 (trop gros), ERR-20 (délai), ERR-17 (trop de requêtes).
+- **Dans le lecteur** : le relais n'est tenté qu'après un échec direct, une seule fois, et le
+  lecteur l'annonce. La fiche affiche « Le serveur peut relire ce flux pour votre navigateur »
+  quand l'adresse est relayable.
+- **Licence** : un flux n'entre au catalogue que par une source licenciée ; le relais ne fait
+  que relire ce qui y est déjà publié, et la licence reste affichée là où le contenu est offert.
 
 Permissions : `diagnostic`, `catalogue.write` pour masquer une chaîne depuis la fiche.
 

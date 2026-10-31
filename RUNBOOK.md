@@ -532,3 +532,138 @@ fly deploy
 ```
 
 Le volume `/data` est conservé. Détail : `docs/DEPLOIEMENT-FLY.md`.
+
+## 11. Sonde rotative (3.20.0)
+
+La mesure du catalogue avance par lots : 150 chaînes par nuit, dans l'ordre du catalogue, avec
+un curseur conservé dans `data/health.json`. Un tour complet demande 10 nuits pour 1 475
+chaînes ; un redémarrage reprend exactement où la ronde s'était arrêtée.
+
+### Voir où en est la mesure
+
+```bash
+npm run rapport:lisibilite            # total, mesurées, restantes, lisibles, sans CORS, nuits
+npm run rapport:lisibilite -- --json  # la même chose en JSON, pour un moniteur
+```
+
+Console, onglet Santé : quatre cartes (joignables, instables, hors service, non testées), la
+lisibilité navigateur, le nombre de nuits restantes et la date de la dernière ronde.
+
+### Rejouer une ronde tout de suite
+
+- Console, onglet Santé, bouton « Sonder le lot suivant » : 150 chaînes du catalogue, curseur
+  avancé, tout est journalisé (`probe.ronde`).
+- Ligne de commande, sans passer par l'interface :
+  `node scripts/probe-chaines.js --tout --commit` (tout le catalogue, plus long).
+- Une seule chaîne : `node scripts/probe-chaines.js --id <identifiant>`.
+
+### Lire un verdict
+
+| État | Cause typique | Que faire |
+|---|---|---|
+| `up` | `ok` | rien, la chaîne est lisible |
+| `flaky` | `slow`, `server` | surveiller ; deux réponses correctes la repassent `up` |
+| `down` | `dead`, `unreachable`, `geo` | vérifier l'adresse dans l'onglet Chaînes |
+| `down` | `cors` | le flux existe mais refuse le navigateur : voir « Relais » ci-dessous |
+| `unknown` | jamais testée | attendre la ronde, ou lancer le lot suivant |
+
+Trois échecs consécutifs bloquent la chaîne ; une réponse correcte la débloque. Une mesure ne
+supprime jamais une chaîne : elle la signale.
+
+### Une ronde ne mesure rien
+
+- Le serveur qui sonde n'a pas accès aux diffuseurs (réseau filtré, pare-feu, proxy) : toutes
+  les chaînes ressortent `down` avec la cause `unreachable`. Vérifier avec
+  `curl -I <adresse du flux>` depuis la même machine. Sur Fly.io, `fly ssh console` puis la même
+  commande.
+- Le lot est vide alors que « restantes » ne l'est pas : le curseur a dépassé le catalogue
+  après un import ; `POST /api/admin/health/resume` remet la photographie à jour, ou
+  redémarrer le serveur relit `data/health.json`.
+
+### CORS : le flux marche chez le serveur, pas dans le navigateur
+
+Un flux `up` mais avec la cause `cors` est lisible par `curl` et refusé par le lecteur du
+navigateur. Le relais HLS sur liste blanche licenciée est prévu au lot suivant ; d'ici là ces
+chaînes restent hors du filtre « Flux vérifiés ».
+
+## 12. Relais des flux refusés par le navigateur (3.21.0)
+
+Un flux mesuré `up` avec la cause `cors` répond au serveur mais pas au lecteur du navigateur.
+Le serveur peut le relire : `/api/relais/:id/flux.m3u8`.
+
+### Vérifier qu'un flux est relayable
+
+- Fiche publique de la chaîne, `GET /api/channels/:id` : `channel.relay.available` à `true` et
+  `channel.relay.url` renseigné.
+- Ligne de commande :
+  `curl -s http://127.0.0.1:3000/api/relais/<identifiant>/flux.m3u8 | head`
+  doit rendre une playlist dont les adresses commencent par `/api/relais/`.
+
+### Un relais répond 403 (ERR-09)
+
+- L'hôte demandé n'est pas dans la liste blanche : la chaîne n'a ni source licenciée ni note de
+  licence. Corriger la source dans l'onglet Sources, ou la fiche de la chaîne.
+- Une redirection du diffuseur est refusée exprès : le relais ne suit pas une adresse qui
+  sortirait de la liste blanche.
+
+### Un relais répond 400 (ERR-04)
+
+- Adresse en HTTP : elle n'est acceptée que sur la boucle locale, et seulement avec
+  `STREAMTV_RELAIS_HTTP=1` (essais et tests). En production, tout passe par HTTPS.
+
+### Charge et mémoire
+
+Chaque fragment relayé est lu en mémoire avant d'être servi. Plafonds : 12 Mo par fragment,
+32 relais simultanés, au-delà la requête reçoit ERR-17. Un pic de spectateurs sur une chaîne
+relayée se surveille comme une hausse d'usage CPU et réseau sur Fly.io
+(`fly dashboard`, métriques de la machine).
+
+### Un flux relayé saccade
+
+Le relais ajoute un aller-retour serveur : préférer une variante de qualité inférieure, ou
+laisser le lecteur choisir une autre source de la même chaîne. Si le flux direct fonctionne
+chez certains visiteurs et pas d'autres, la cause est bien le CORS du diffuseur, pas la charge.
+
+## 13. Une chaîne affiche « Signal indisponible » (3.22.0)
+
+Le lecteur a maintenant un diagnostic. Avant de toucher au catalogue, demander la cause.
+
+### Connaître la cause, depuis la machine de l'exploitant
+
+```bash
+npm run diagnostic:chaine -- "2M Monde"      # par nom (accents et casse ignorés)
+npm run diagnostic:chaine -- 5a81c70138ed    # par identifiant
+npm run diagnostic:chaine -- "2M Monde" --json
+```
+
+Le script refait le chemin du lecteur : DNS, TLS, code HTTP, en-têtes CORS, playlist, premier
+fragment. Il sort en code 1 dès que le flux ne lit pas, et donne l'action à faire.
+
+| Verdict | Ce que cela veut dire | Ce qu'on fait |
+|---|---|---|
+| `up` | le flux lit depuis cette machine | rien ; si un visiteur échoue, c'est son réseau |
+| `cors` | le flux existe, le navigateur n'a pas le droit de le lire | le relais s'en charge ; vérifier `relay.available` sur la fiche |
+| `geo` | 403 ou 451 : restriction de zone ou d'ayant droit | ne pas insister : retirer la chaîne ou la documenter comme indisponible en France/Maroc |
+| `dead` | 404, 410, redirection, playlist invalide | chercher l'adresse à jour, sinon retirer |
+| `unreachable` | ni DNS ni réponse, mais d'autres chaînes passent | le diffuseur bloque cette machine ; réessayer depuis un autre réseau |
+| `timeout` | aucune réponse dans les 15 s | réessayer plus tard, la chaîne reste publique |
+
+### Ce que les visiteurs apprennent au catalogue
+
+Chaque ouverture de chaîne envoie un verdict anonyme. Une image affichée passe la chaîne en
+`up` (`cors: true`) ; deux échecs pour un 403/404, trois pour une panne réseau ou CORS,
+la bloquent en `down` avec sa cause.
+
+- La console affiche ces chaînes dans « Bloquées par les visiteurs », avec la cause sur la fiche.
+- Le blocage est réversible : une lecture réussie débloque immédiatement.
+- Garde-fous : un visiteur ne compte qu'une fois par chaîne et par 6 h, 20 verdicts par jour et
+  par visiteur, et 30 blocages par heure au total. Seule une empreinte tronquée est conservée.
+- Si le plafond horaire est atteint, le message le dit : « trop de chaînes ont été bloquées dans
+  l'heure », et rien n'est modifié. Vérifier alors à la main avant de croire le catalogue.
+
+### Le relais ne sauve pas une restriction de zone
+
+Un 403 est une décision du diffuseur, pas un problème de navigateur. Le relais relaie depuis
+un autre réseau, ce qui ne change pas le pays de l'ayant droit et ne contourne aucune licence.
+Une chaîne marquée `[Geo-blocked]` porte désormais « Zone restreinte » sur sa fiche, avant le
+clic.

@@ -1,14 +1,14 @@
 // public/js/views/home.js · écran 1 : accueil et catalogue paginé.
 // ≤ 60 chaînes par réponse, ≤ 120 cartes dans le DOM, squelettes pendant le chargement.
 
-import { api } from '../api.js?v=3.19.0';
-import { COPY } from '../copy.js?v=3.19.0';
-import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, modal, logoNode, toast } from '../ui.js?v=3.19.0';
-import { channelCard, categoryChips, hiddenNotice, paintNow } from '../components.js?v=3.19.0';
-import { getPlayer } from '../player.js?v=3.19.0';
-import { prefs } from '../prefs.js?v=3.19.0';
-import { nowFor, heureCourte, progression, primeNow } from '../epg-now.js?v=3.19.0';
-import { mountRails } from './rails.js?v=3.19.0';
+import { api } from '../api.js?v=3.22.0';
+import { COPY } from '../copy.js?v=3.22.0';
+import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, modal, logoNode, toast } from '../ui.js?v=3.22.0';
+import { channelCard, categoryChips, hiddenNotice, paintNow } from '../components.js?v=3.22.0';
+import { getPlayer } from '../player.js?v=3.22.0';
+import { prefs } from '../prefs.js?v=3.22.0';
+import { nowFor, heureCourte, progression, primeNow } from '../epg-now.js?v=3.22.0';
+import { mountRails } from './rails.js?v=3.22.0';
 
 /** Ligne de programme du héros : remplacée dès que le guide répond, jamais bloquante. */
 function programmeLine(channel) {
@@ -100,6 +100,8 @@ export async function renderHome(container, ctx) {
     sort: query.sort || config.defaultSort || 'number',
     page: Math.max(1, Number(query.p) || 1),
     fav: query.fav === '1',
+    // 3.20.0 : « flux vérifiés » ne garde que les chaînes réellement mesurées disponibles.
+    verif: query.verif === '1',
   };
   const openPlayer = (channel) => {
     const queue = [...container.querySelectorAll('[data-channel-id]')].map((el) => el.dataset.channelId);
@@ -115,6 +117,7 @@ export async function renderHome(container, ctx) {
     if (next.cat) params.set('cat', next.cat);
     if (next.sort && next.sort !== config.defaultSort) params.set('sort', next.sort);
     if (next.fav) params.set('fav', '1');
+    if (next.verif) params.set('verif', '1');
     if (next.page > 1) params.set('p', String(next.page));
     const search = params.toString();
     navigate(`/${search ? `?${search}` : ''}`, { replace: false, keepScroll: false });
@@ -123,7 +126,7 @@ export async function renderHome(container, ctx) {
   const view = h('div', { class: 'view' });
   container.replaceChildren(view);
 
-  const showHero = !state.q && !state.cat && !state.fav && state.page === 1;
+  const showHero = !state.q && !state.cat && !state.fav && !state.verif && state.page === 1;
   if (showHero && config.hero) {
     view.append(heroBlock(config.hero, { config, openChannel, openPlayer }));
   }
@@ -170,13 +173,19 @@ export async function renderHome(container, ctx) {
       onClick: () => setParam({ fav: state.fav ? '' : '1' }),
     }, icon('heart', 15), 'Mes favoris',
       h('span', { class: 'fav-count', id: 'fav-count', text: String(prefs.favorites().length) })),
+    h('button', {
+      class: 'btn btn-ghost btn-sm', type: 'button', id: 'verif-filter',
+      'aria-pressed': String(state.verif),
+      'aria-label': state.verif ? 'Afficher toutes les chaînes' : 'Afficher seulement les flux mesurés disponibles',
+      onClick: () => setParam({ verif: state.verif ? '' : '1' }),
+    }, icon('shield', 15), 'Flux vérifiés'),
     h('span', { class: 'spacer' }),
     h('label', { class: 'visually-hidden', for: 'sort-select' }, 'Trier les chaînes'),
     h('select', {
       class: 'select', id: 'sort-select', value: state.sort,
       onChange: (event) => setParam({ sort: event.target.value }),
     },
-    [['number', 'Numéro'], ['name', 'Nom'], ['category', 'Catégorie'], ['recent', 'Ajout récent'], ['confidence', 'Confiance']]
+    [['number', 'Numéro'], ['name', 'Nom'], ['category', 'Catégorie'], ['recent', 'Ajout récent'], ['confidence', 'Confiance'], ['lisibilite', 'Lisibilité']]
       .map(([value, label]) => h('option', { value, selected: value === state.sort }, label))));
   view.append(toolbar);
   view.append(resultsHost);
@@ -246,6 +255,7 @@ export async function renderHome(container, ctx) {
       });
       if (state.cat) params.set('category', state.cat);
       if (state.q) params.set('q', state.q);
+      if (state.verif) params.set('etat', 'lisibles');
       const payload = state.q
         ? await api(`/api/channels/search?${params}`)
         : await api(`/api/channels?${params}`);
@@ -300,6 +310,7 @@ export async function renderHome(container, ctx) {
         page: String(state.page), pageSize: String(config.pageSize || 48), sort: state.sort,
       });
       if (state.cat) params.set('category', state.cat);
+      if (state.verif) params.set('etat', 'lisibles');
       let payload;
       if (state.q) {
         params.set('q', state.q);
@@ -325,7 +336,16 @@ export async function renderHome(container, ctx) {
     const count = container.querySelector('#result-count');
     if (count && !payload.total) count.textContent = 'Aucun résultat';
     if (!payload.channels.length) {
-      if (state.q) {
+      if (state.verif) {
+        // Le filtre dit la vérité : aucune chaîne n'a encore été mesurée disponible.
+        resultsHost.replaceChildren(emptyState({
+          iconName: 'shield',
+          title: 'Aucun flux vérifié pour le moment',
+          message: 'La sonde teste les chaînes par lots. Tant qu’une chaîne n’a pas été mesurée disponible, elle n’apparaît pas ici.',
+          actionLabel: 'Afficher tout le catalogue',
+          onAction: () => setParam({ verif: '' }),
+        }));
+      } else if (state.q) {
         resultsHost.replaceChildren(emptyState({
           iconName: 'search',
           title: COPY.states.searchEmpty.title,

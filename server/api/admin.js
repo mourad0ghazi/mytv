@@ -12,14 +12,16 @@ import { effectiveRules, learnFromCorrections } from '../core/learning.js';
 import { DEFAULTS, schemaForClient, validateSettings } from '../core/settings.js';
 import { assertPasswordPolicy, hashPassword } from '../core/auth.js';
 import { exportJson, exportM3U } from '../core/exports.js';
-import { nextProbeBatch, probeChannels } from '../core/health.js';
 import { buildTags, detectCountry, detectLanguage, detectQuality, groupKind, normalizeName, normalizeUrl } from '../core/text.js';
 import { buildPredicate, paginate, sortChannels } from '../core/search.js';
+import { probeStats } from '../core/probe-plan.js';
+import { lectureStats } from '../core/playback.js';
 import { queryInt, queryString } from '../http/router.js';
 import { registerPilotageRoutes } from './admin-pilotage.js';
 import { registerSettingsRoutes } from './admin-settings.js';
 import { registerAccessRoutes } from './admin-access.js';
 import { registerSetupRoutes } from './admin-setup.js';
+import { registerProbeRoutes } from './admin-probe.js';
 
 const now = () => new Date().toISOString();
 
@@ -643,7 +645,10 @@ export function registerAdminRoutes(base, app) {
         visible: active.filter((channel) => isPublic(channel, app.store.settings)).length,
         hidden: active.filter((channel) => !isPublic(channel, app.store.settings)).length,
         categories,
-        health: app.store.healthCounts(),
+        health: { ...app.store.healthCounts(), ...probeStats(app.store.channels, { withProbe: false }) },
+        // Ce que seule la lecture réelle apprend : les chaînes jugées par des visiteurs.
+        lecture: lectureStats(app.store.channels),
+        probe: app.store.probe,
         sources,
         decision,
         confidence: {
@@ -687,33 +692,6 @@ export function registerAdminRoutes(base, app) {
         backupList: backups,
         uptimeSeconds: Math.round(process.uptime()),
         computeMs: Math.round(performance.now() - started),
-      },
-      cache: 'no-store',
-    };
-  }, auth);
-
-  // EP-31 — sonde de disponibilité.
-  router.post('/api/admin/health/probe', async ({ body, ip, requestId }) => {
-    const limit = queryProbeLimit(body?.limit);
-    const ids = Array.isArray(body?.ids) ? body.ids.slice(0, 100) : null;
-    const pool = ids
-      ? app.store.channels.filter((channel) => ids.includes(channel.id) && channel.url)
-      : nextProbeBatch(app.store.channels.filter((channel) => !channel.deleted && channel.url), { limit });
-    if (!pool.length) {
-      throw new AppError('ERR-16', { params: { raison: 'aucune chaîne à sonder : toutes ont été testées récemment' } });
-    }
-    const ticket = app.probeLimiter.take(pool.length);
-    if (!ticket.allowed) {
-      throw new AppError('ERR-17', { params: { n: Math.max(1, Math.ceil(ticket.retryAfterSeconds / 60)) }, headers: { 'Retry-After': String(ticket.retryAfterSeconds) } });
-    }
-    const result = await probeChannels(pool, { concurrency: LIMITS.probeConcurrency, timeoutMs: LIMITS.probeTimeoutMs });
-    await app.store.saveChannels('health.probe');
-    await app.store.saveHealthSnapshot();
-    await app.store.audit('health.probe', { ip, requestId, count: result.tested, detail: `${result.up} ok / ${result.flaky} instables / ${result.down} hs` });
-    return {
-      body: {
-        ...result,
-        message: `Sonde terminée : ${result.up} disponibles, ${result.flaky} instables, ${result.down} indisponibles sur ${result.tested} chaînes testées.`,
       },
       cache: 'no-store',
     };
@@ -792,6 +770,7 @@ export function registerAdminRoutes(base, app) {
   registerPilotageRoutes(router, app);
   registerAccessRoutes(router, app);
   registerSetupRoutes(router, app);
+  registerProbeRoutes(router, app);
 
   router.post('/api/admin/password', async ({ body, session, ip, requestId }) => {
     const current = String(body?.current || '');
@@ -831,12 +810,6 @@ export function registerAdminRoutes(base, app) {
 
 function channelIdFor(urlNormalized) {
   return createHash('sha1').update(urlNormalized).digest('hex').slice(0, 12);
-}
-
-function queryProbeLimit(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return 40;
-  return Math.min(100, Math.max(1, Math.floor(number)));
 }
 
 function measureEngine(app) {

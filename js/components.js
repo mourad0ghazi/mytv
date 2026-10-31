@@ -1,10 +1,10 @@
 // public/js/components.js · composants partagés : carte, pastilles, en-tête de section.
 
-import { h, icon, logoNode, healthLabel } from './ui.js?v=3.19.0';
-import { prefs } from './prefs.js?v=3.19.0';
-import { COPY } from './copy.js?v=3.19.0';
-import { attacherPreview } from './preview.js?v=3.19.0';
-import { nowCached, nowFor, heureCourte, progression, guideDisponible } from './epg-now.js?v=3.19.0';
+import { h, icon, logoNode, healthLabel } from './ui.js?v=3.22.0';
+import { prefs } from './prefs.js?v=3.22.0';
+import { COPY } from './copy.js?v=3.22.0';
+import { attacherPreview } from './preview.js?v=3.22.0';
+import { nowCached, nowFor, heureCourte, progression, guideDisponible } from './epg-now.js?v=3.22.0';
 
 /** Motif de non-lecture, en français et en trois mots (§9.4). */
 export function reasonLabel(reason) {

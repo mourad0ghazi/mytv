@@ -1,9 +1,9 @@
-# Conformité — StreamTV (évaluation initiale 3.6.0, compléments jusqu’à 3.19.0)
+# Conformité — StreamTV (évaluation initiale 3.6.0, compléments jusqu’à 3.22.0)
 
-Version évaluée : **3.6.0**, 25 octobre 2026 ; compléments 3.7.0 à 3.19.0 documentés au §4.
-Version livrée au 31 octobre 2026 : **3.19.0** (comptes visiteurs, hébergement Fly.io).
+Version évaluée : **3.6.0**, 25 octobre 2026 ; compléments 3.7.0 à 3.22.0 documentés au §4.
+Version livrée au 31 octobre 2026 : **3.22.0** (sonde rotative, lisibilité publiée, relais des flux licenciés, verdicts de lecture).
 Référentiel : cahier des charges *StreamTV v2* (§1 à §13, 118 critères).
-Preuves de la livraison 3.19.0 : `npm test` (407 tests, 0 échec),
+Preuves de la livraison 3.22.0 : `npm test` (464 tests, 0 échec),
 `node scripts/verify.js --base http://127.0.0.1:3000` (53 contrôles réussis sur 54,
 1 avertissement attendu : mot de passe de démonstration), `node scripts/measure-tagger.js`,
 smoke tests DOM (jsdom) des 12 routes.
@@ -492,10 +492,15 @@ juridique ne bouge pas : sans licence identifiée, un contenu n'entre pas et ne 
 | Comptes visiteurs | inscription confirmée par e-mail, mot de passe scrypt, plafonds et refus explicites | `tests/comptes.test.js` |
 | Séparation des publics | un jeton visiteur reçoit 401 sur `/api/admin/*` | `tests/comptes.test.js` |
 | Modération des comptes | Suspendre ferme les sessions, supprimer retire les données personnelles | `tests/comptes.test.js` |
+| Mesure du catalogue | ronde rotative persistante : tout le catalogue est testé, sans repasser sur les mêmes chaînes | `tests/sonde.test.js` |
+| Lisibilité publiée | chaque carte porte la date et la cause de la mesure ; `etat=lisibles` filtre les flux vérifiés | `tests/sonde.test.js` |
+| Relais des flux licenciés | le serveur relit un flux refusé par le navigateur, uniquement pour un hôte du catalogue licencié ; hors liste, HTTP, IP littérale et redirection sont refusés | `tests/relais.test.js` |
+| Verdict de lecture | une image affichée vaut mesure ; des échecs constatés chez les visiteurs bloquent la chaîne, cause comprise, sans jamais la supprimer | `tests/lecture.test.js` |
+| Diagnostic d'une chaîne | DNS, TLS, HTTP, CORS, playlist et fragment vérifiés depuis la machine de l'exploitant, verdict et action | `tests/lecture.test.js` |
 
 ## 5. Matrice des routes
 
-Les 37 routes du cahier des charges sont toutes servies. La 3.19.0 porte le total à 119
+Les 37 routes du cahier des charges sont toutes servies. La 3.22.0 porte le total à 124
 routes déclarées, dont les 15 routes de comptes visiteurs et les quatre routes de modération.
 
 | Cahier des charges | Implémentation | Méthode | Protection |
@@ -577,7 +582,7 @@ routes déclarées, dont les 15 routes de comptes visiteurs et les quatre routes
 
 ```bash
 node server/index.js &                     # service sur :3000
-npm test                                   # 407 tests, 0 échec
+npm test                                   # 464 tests, 0 échec
 node scripts/verify.js --base http://127.0.0.1:3000
 node scripts/measure-tagger.js
 node scripts/backup.js --list

@@ -95,6 +95,8 @@ obtenir des faits, mesurez :
 npm run sonde                        # 500 chaînes jamais testées, aperçu
 npm run sonde -- --tout --commit     # tout le catalogue, enregistré
 npm run sonde -- --id db4e9e37edfa   # une seule chaîne
+npm run rapport:lisibilite           # combien sont mesurées, lisibles, restantes (sans réseau)
+npm run diagnostic:chaine -- "2M Monde"   # pourquoi une chaîne ne s'ouvre pas, étape par étape
 ```
 
 La sonde demande un octet par flux (`Range: bytes=0-0`), huit en parallèle, avec un délai de
@@ -214,7 +216,7 @@ public/
   sw.js, offline.html    PWA : coquille en cache, API jamais mise en cache
   vendor/hls.min.js      hls.js 1.5.17 épinglé, Apache-2.0, servi localement
 scripts/                 ingest.js, measure-tagger.js, backup.js, verify.js
-tests/                   407 tests node:test (core, api, vidéo à la demande, sources, documentation, sécurité, client, messages, epg, alertes, apprentissage, migration, conformité, design)
+tests/                   464 tests node:test (core, api, vidéo à la demande, sources, documentation, sécurité, client, messages, epg, alertes, apprentissage, migration, conformité, design, sonde, relais, lecture)
 docs/PV-RECETTE.md       procès-verbal de recette
 ```
 
@@ -225,7 +227,7 @@ fichiers relatifs : pas de bundler, pas de CDN.
 
 ---
 
-## 4. API HTTP (119 routes déclarées)
+## 4. API HTTP (124 routes déclarées)
 
 Enveloppe d’erreur unique : `{ "error": "phrase française", "code": "ERR-xx", "requestId": "…", "field": "…" }`.
 L’ordre de contrôle est fixe : méthode (405) → taille (413) → type (415) → authentification
@@ -237,8 +239,10 @@ L’ordre de contrôle est fixe : méthode (405) → taille (413) → type (415)
 |---|---|
 | `GET /healthz` | état du service (200) ou dégradé (503) |
 | `GET /api/config` | marque, accent, catégories, compteurs, vedette, bandeaux |
-| `GET /api/channels` | liste paginée : `page`, `pageSize` (1–60), `sort`, `category`, `country`, `language`, `quality`, `health`, `featured` |
-| `GET /api/channels/:id` | fiche complète (36 champs utiles + `playable`) |
+| `GET /api/channels` | liste paginée : `page`, `pageSize` (1–60), `sort`, `category`, `country`, `language`, `quality`, `health`, `etat` (`lisibles` ou `mesures`), `sort` (`lisibilite` compris), `featured` |
+| `GET /api/channels/:id` | fiche complète (36 champs utiles, `playable`, `relay`) |
+| `GET /api/relais/:id/flux.m3u8` | relais de la playlist d'une chaîne licenciée, adresses réécrites vers le relais |
+| `GET /api/relais/:id/s?u=` | relais d'un fragment ou d'une variante, hôte de la liste blanche seulement |
 | `GET /api/channels/search?q=` | recherche dédiée, même contrat que la liste |
 | `GET /api/channels?ids=a,b,c` | sélection explicite d'identifiants (rails, proches) |
 | `GET /api/channels/:id` → `alternatives` | autres sources de la même chaîne (`tvg-id` puis nom normalisé) |
@@ -254,6 +258,7 @@ L’ordre de contrôle est fixe : méthode (405) → taille (413) → type (415)
 | `GET /api/version` | version, version de spécification, empreintes de build |
 | `GET /api/errors/catalog` | les 82 messages du §9 en 6 familles, les 20 codes opposables et leurs textes |
 | `GET /api/session` | session courante (`signedIn`, échéance, sessions ouvertes) |
+| `POST /api/events/lecture` | verdict de lecture du visiteur (`ok`/`echec` + cause) : corrige la mesure, anonyme |
 | `POST /api/login` | jeton Bearer (8 tentatives / 15 min / IP) |
 | `POST /api/logout` | révoque le jeton présenté |
 
@@ -666,7 +671,7 @@ est signalé comme **avertissement** (attendu en démonstration, à corriger ava
 ## 7. Tests
 
 ```bash
-npm test            # 80 suites, 407 tests, aucune dépendance
+npm test            # 96 suites, 464 tests, aucune dépendance
 ```
 
 | Suite | Ce qu’elle prouve |
@@ -685,6 +690,9 @@ npm test            # 80 suites, 407 tests, aucune dépendance
 | `tests/vod-sources.test.js` | routes anime, films, sources et recherche ; refus sans licence ; arbitrage ; seuil de retrait |
 | `tests/documentation.test.js` | la console et `docs/ADMINISTRATION.md` disent la même chose : onglets, réglages, codes d’audit |
 | `tests/statique.test.js` | copie publiée : worker, attente finie, `withBase` sous `/mytv/`, affiches livrées, 13 contrôles d’adresse |
+| `tests/lecture.test.js` | verdicts de lecture : seuils, anti-doublon, plafonds, blocage puis déblocage, CORS du relais, diagnostic de chaîne |
+| `tests/relais.test.js` | relais HLS : liste blanche licenciée, refus hors liste, réécriture des playlists, fragments servis, plafonds, tri par lisibilité |
+| `tests/sonde.test.js` | sonde rotative : lots successifs sans doublon, curseur relu après redémarrage, cause de chaque mesure, ronde par route, filtre public `etat`, rapport de lisibilité |
 | `tests/comptes.test.js` | comptes visiteurs : inscription confirmée par un serveur SMTP local, code faux puis juste, jeton refusé sur la console, favoris et reprises, fusion, suspension, suppression, inscriptions fermées, expiration et plafonds |
 
 Les tests démarrent chacun leur propre serveur sur un dossier temporaire : le catalogue réel n’est

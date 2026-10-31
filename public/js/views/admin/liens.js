@@ -3,11 +3,11 @@
 // Actions immédiates : copier le lien, copier la ligne M3U, télécharger la fiche, tester le flux.
 // Lecture seule sur le catalogue : toute modification passe par l'onglet Catalogue.
 
-import { Admin, download } from '../../api.js?v=3.19.0';
-import { modal } from '../../ui.js?v=3.19.0';
-import { h, icon, toast, copyText, emptyState, healthBadge, fmtRelative, hostOf, countryName, flagFor } from '../../ui.js?v=3.19.0';
-import { statCard } from '../../components.js?v=3.19.0';
-import { apiGuard } from './common.js?v=3.19.0';
+import { Admin, download } from '../../api.js?v=3.22.0';
+import { modal } from '../../ui.js?v=3.22.0';
+import { h, icon, toast, copyText, emptyState, healthBadge, fmtRelative, hostOf, countryName, flagFor } from '../../ui.js?v=3.22.0';
+import { statCard } from '../../components.js?v=3.22.0';
+import { apiGuard } from './common.js?v=3.22.0';
 
 const PAGE_SIZE = 25;
 

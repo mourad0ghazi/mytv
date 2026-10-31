@@ -174,6 +174,9 @@ export function buildPredicate(filters = {}, settings = {}) {
   const language = (filters.language || '').toLowerCase();
   const quality = (filters.quality || '').toUpperCase();
   const health = (filters.health || '').toLowerCase();
+  // 3.20.0 : lisibilité mesurée. « lisibles » = testée et joignable ; « mesures » = testée, quel
+  // que soit le verdict ; une chaîne jamais testée n'entre dans aucun des deux.
+  const etat = (filters.etat || '').toLowerCase();
   const featured = filters.featured;
   const visibility = filters.visibility || 'public';
   const ids = filters.ids ? new Set(filters.ids) : null;
@@ -187,6 +190,8 @@ export function buildPredicate(filters = {}, settings = {}) {
     if (language && channel.language !== language) return false;
     if (quality && channel.quality !== quality) return false;
     if (health && channel.health?.status !== health) return false;
+    if (etat === 'lisibles' && !['up', 'flaky'].includes(channel.health?.status || 'unknown')) return false;
+    if (etat === 'mesures' && (!channel.health?.status || channel.health.status === 'unknown')) return false;
     if (featured === true && !channel.featured) return false;
     if (featured === false && channel.featured) return false;
     return true;
@@ -196,6 +201,10 @@ export function buildPredicate(filters = {}, settings = {}) {
 /* ------------------------------------------------------------------ tri */
 
 const CATEGORY_ORDER = Object.fromEntries(CATEGORIES.map((category, index) => [category.id, index]));
+
+// Tri lisibilité : ce qui est mesuré joignable d'abord, ce qui n'a jamais été testé ensuite,
+// ce qui est hors service à la fin. À égalité, l'ordre du catalogue.
+const HEALTH_ORDER = { up: 0, flaky: 1, unknown: 2, down: 3 };
 
 export function sortChannels(channels, sort = 'number') {
   const key = SORTS.includes(sort) ? sort : 'number';
@@ -208,6 +217,7 @@ export function sortChannels(channels, sort = 'number') {
       case 'recent': return String(b.createdAt).localeCompare(String(a.createdAt)) || a.number - b.number;
       case 'confidence': return b.confidence - a.confidence || a.number - b.number;
       case 'quality': return (QUALITY_RANK[b.quality] || 0) - (QUALITY_RANK[a.quality] || 0) || a.number - b.number;
+      case 'lisibilite': return (HEALTH_ORDER[a.health] ?? 2) - (HEALTH_ORDER[b.health] ?? 2) || a.number - b.number;
       default: return a.number - b.number;
     }
   });

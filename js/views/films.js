@@ -2,15 +2,15 @@
 // Un film n'est pas une chaîne : pas de guide, pas de direct, mais une durée, une année,
 // des genres et une reprise de lecture à la seconde.
 
-import { api } from '../api.js?v=3.19.0';
-import { withBase } from '../base.js?v=3.19.0';
-import { COPY } from '../copy.js?v=3.19.0';
-import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, toast } from '../ui.js?v=3.19.0';
-import { prefs } from '../prefs.js?v=3.19.0';
-import { getPlayer } from '../player.js?v=3.19.0';
+import { api } from '../api.js?v=3.22.0';
+import { withBase } from '../base.js?v=3.22.0';
+import { COPY } from '../copy.js?v=3.22.0';
+import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, toast } from '../ui.js?v=3.22.0';
+import { prefs } from '../prefs.js?v=3.22.0';
+import { getPlayer } from '../player.js?v=3.22.0';
 import {
   fmtDuration, fmtPosition, sourcesBlock, vodCard, vodFilters, vodPager, vodRow,
-} from '../vod-ui.js?v=3.19.0';
+} from '../vod-ui.js?v=3.22.0';
 
 /** Ouvre le film, reprend à la seconde mémorisée, enregistre la position en local. */
 export function playFilm({ film, navigate }) {

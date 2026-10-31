@@ -2,8 +2,8 @@
 // Les comptes visiteurs se modèrent ici : consulter, suspendre, réactiver, supprimer.
 // La console ne voit jamais un mot de passe ni une empreinte : seulement l'identité déclarée.
 
-import { Admin } from '../../api.js?v=3.19.0';
-import { h, icon, fmtNumber, spinner, emptyState, toast, modal } from '../../ui.js?v=3.19.0';
+import { Admin } from '../../api.js?v=3.22.0';
+import { h, icon, fmtNumber, spinner, emptyState, toast, modal } from '../../ui.js?v=3.22.0';
 
 function dateCourte(iso) {
   if (!iso) return 'jamais';

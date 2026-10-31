@@ -7,7 +7,7 @@
    Le chemin de publication est lu dans la portée du worker : le même fichier sert à la racine
    du serveur Node et dans le sous-dossier de GitHub Pages, sans réécriture à la construction. */
 
-const VERSION = 'streamtv-v3.19.0';
+const VERSION = 'streamtv-v3.22.0';
 const CACHE_COQUILLE = `${VERSION}-coquille`;
 const CACHE_FICHIERS = `${VERSION}-fichiers`;
 

@@ -3,6 +3,147 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 Versionnement sémantique. Toutes les dates sont au format `AAAA-MM-JJ`.
 
+## [3.22.0] - 2026-10-31
+
+Un lecteur qui répond « Signal indisponible » ne dit pas pourquoi. Une chaîne géo-bloquée, une
+adresse morte, un refus CORS du diffuseur et un réseau muet produisaient le même écran. La
+lecture réelle devient maintenant une mesure : cause conservée, catalogue corrigé par les
+visiteurs eux-mêmes, et un diagnostic qui refait le chemin du lecteur étape par étape.
+
+### Ajouté
+
+- **`POST /api/events/lecture`** : le lecteur envoie un verdict, `ok` après la première image,
+  `echec` avec sa cause (`dead`, `geo`, `cors`, `timeout`, `codec`). Anonyme.
+- **`server/core/playback.js`** : seuils (2 signalements pour un refus certain 403/404, 3 pour
+  une panne ambiguë), anti-doublon par visiteur et par chaîne sur 6 h, plafond de 20 verdicts
+  par visiteur et par jour, plafond de 30 blocages par heure pour qu'un bourrage ne puisse pas
+  bloquer tout le catalogue. Seule une empreinte tronquée est conservée, jamais l'adresse.
+- **La lecture réussie vaut mesure** : une image affichée passe la chaîne en `up` avec
+  `cors: true`, et purge ses compteurs d'échec. La sonde serveur n'est plus seule juge.
+- **Blocage après échecs répétés** : `down` + cause + `consecutiveFailures` au seuil du
+  catalogue, journalisé (`channel.lecture`), sans jamais supprimer la chaîne.
+- **Restriction de zone annoncée** : `geoRestricted` sur la carte et la fiche quand la liste
+  d'origine déclare `[Geo-blocked]`, avec un bandeau qui dit que le relais ne contourne pas
+  cette restriction.
+- **`scripts/diagnostic-chaine.js`** et `npm run diagnostic:chaine -- "2M Monde"` : refait DNS,
+  TLS, code HTTP, en-têtes CORS, playlist et premier fragment depuis la machine de
+  l'exploitant, puis conclut (`up`, `cors`, `geo`, `dead`, `unreachable`, `timeout`) avec
+  l'action à faire. Lecture seule, `--json`, code de sortie 1 dès que le flux ne lit pas.
+- **CORS du relais** : préflight `OPTIONS` et en-têtes d'origine pour les seules routes de
+  relais, sur une liste explicite (`STREAMTV_ORIGINES_PUBLIQUES`), jamais `*`. Le reste du
+  site garde sa politique `same-origin`.
+- **Console, onglet Santé** : carte « Bloquées par les visiteurs » et phrase de méthode.
+- **`tests/lecture.test.js`** : 24 tests (seuils, anti-doublon, plafonds, blocage réel par
+  route, déblocage, CORS, diagnostic contre un diffuseur local).
+
+### Modifié
+
+- `probeStats(channels, { withProbe: false })` : la console compte tout le catalogue publié,
+  même quand la pastille publique est masquée, au lieu d'afficher zéro.
+- Le lecteur remet son verdict à zéro à chaque relance : une chaîne peut se rétablir.
+
+### Preuves
+
+- `npm test` : 464 tests, 96 suites, 0 échec.
+- `node scripts/diagnostic-chaine.js "2M Monde"` sur ce bac à sable : DNS résolu
+  (23.46.228.139), `ECONNRESET` avant TLS, verdict `unreachable`, avec la cause réseau citée.
+- Diagnostic contre un diffuseur local : playlist lue, fragment en HTTP 200, verdict `up` ;
+  sans en-tête CORS, verdict `cors` ; 403, verdict `geo` ; 404, verdict `dead`.
+
+## [3.21.0] - 2026-10-31
+
+Beaucoup de chaînes répondent au serveur et refusent le navigateur : la mesure le voyait
+(`cors`), le lecteur échouait quand même, faute d'un chemin de lecture. Le serveur relit
+désormais ces flux pour le compte du visiteur, **uniquement** pour des adresses déjà publiées
+par une source licenciée.
+
+### Ajouté
+
+- **`server/core/relay.js`** : liste blanche des hôtes du catalogue licencié, refus des
+  adresses hors liste, en HTTP, en IP littérale et des redirections ; réécriture des playlists
+  (variantes, fragments, clés `#EXT-X-KEY`, cartes `#EXT-X-MAP`, pistes `#EXT-X-MEDIA`) ;
+  lectures plafonnées (512 Ko pour une playlist, 12 Mo pour un fragment, 15 s par requête).
+- **`server/api/relay.js`** : `GET /api/relais/:id/flux.m3u8` et `GET /api/relais/:id/s?u=…`.
+  Une chaîne masquée reste introuvable ; un hôte hors liste blanche reçoit ERR-09.
+- **Fiche publique** : `relay` annonce si le flux est relayable et sous quelle adresse. Le
+  lecteur ne s'en sert qu'après un échec direct, une seule fois, et le dit à l'écran.
+- **Tri `lisibilite`** : mesuré joignable, puis non testé, puis hors service. Disponible dans
+  le sélecteur de tri de l'accueil (« Lisibilité »).
+- **`tests/relais.test.js`** : 19 tests (liste blanche, refus, réécriture, fragments servis,
+  plafonds, tri, relais complet contre un diffuseur local).
+
+### Modifié
+
+- La fiche d'une chaîne dont le relais est disponible remplace « lecture incertaine » par
+  « Le serveur peut relire ce flux pour votre navigateur ».
+- `STREAMTV_RELAIS_HTTP=1` autorise HTTP sur la boucle locale (essais et tests uniquement,
+  jamais en production).
+
+### Preuves
+
+- `npm test` : 440 tests, 91 suites, 0 échec.
+- `tests/relais.test.js` : 19 tests, 6 suites, 0 échec ; le diffuseur local sert une playlist
+  maîtresse, une playlist de variantes, une clé, un fragment TS, une redirection et un 404.
+- Requête refusée hors liste (`ERR-09`), sans adresse (`ERR-02`), chaîne inconnue (`ERR-10`),
+  playlist trop grosse (`ERR-15`), diffuseur qui répond 404 (`ERR-16`), redirection non
+  suivie (`ERR-09`).
+
+## [3.20.0] - 2026-10-31
+
+Une chaîne n'est « qui ne marche pas » que si on l'a mesuré. Le catalogue comptait 1 475
+chaînes et **zéro mesure** : la sonde nocturne ne testait que les 40 premières, toutes les
+nuits, et 97 % du catalogue restait à l'état `unknown`. La sonde avance désormais par lots
+rotatifs, la mesure garde sa cause, et le visiteur peut demander les seuls flux vérifiés.
+
+### Ajouté
+
+- **`server/core/probe-plan.js`** : plan de ronde. `nextRotatingBatch()` rend le lot suivant
+  dans l'ordre du catalogue à partir d'un curseur, sans doublon sur un tour, et revient à zéro
+  au bout ; `probeStats()` rend la photographie (mesurées, restantes, lisibles au navigateur,
+  sans en-tête CORS, nombre de nuits pour finir le tour).
+- **`server/core/probe-runner.js`** : chemin unique de mesure pour la console et la tâche
+  nocturne (plafond 300 sondes/minute, écriture atomique, journal d'audit, avancée du curseur).
+- **Curseur persistant** dans `data/health.json` (`probe.cursor`, `runs`, `tested`, `lastAt`) :
+  un redémarrage reprend la ronde au même endroit. Vérifié en direct : `cursor: 2` relu après
+  arrêt et relance du serveur.
+- **Ronde nocturne de 150 chaînes** au lieu de 40 : un tour complet passe de 37 nuits à 10.
+- **`POST /api/admin/health/ronde`** (lot suivant, `ids` pour cibler 100 chaînes au plus) et
+  **`GET /api/admin/health/resume`** (photographie sans sonder). Bouton « Sonder le lot
+  suivant » dans l'onglet Santé, avec la date de la dernière ronde.
+- **Cause de la mesure conservée** : `ok`, `geo`, `dead`, `cors`, `slow`, `server`,
+  `unreachable`. Exposée dans `projectCard.healthReason`, `healthDetail.reason` et
+  `healthDetail.browserPlayable`.
+- **Filtre public `etat`** : `lisibles` (mesurée joignable), `mesures` (testée, quel que soit
+  le verdict). Bouton « Flux vérifiés » sur l'accueil, avec un état vide qui dit la vérité :
+  aucune chaîne mesurée disponible pour le moment.
+- **Fiche chaîne** : bandeau de mesure (daté, cause, lisibilité navigateur) sauf si le flux est
+  mesuré disponible, et trois lignes techniques : dernière mesure, lisibilité navigateur,
+  cause.
+- **`scripts/rapport-lisibilite.js`** et `npm run rapport:lisibilite` : réponse chiffrée, sans
+  réseau, à « pourquoi si peu de chaînes fonctionnent » (total, mesurées, restantes, lisibles,
+  sans CORS, par catégorie).
+- **`/api/config`** publie `health.readable`, `health.remaining`, `health.measured`,
+  `health.lastProbeAt`. **`/api/admin/stats`** publie `probe` (curseur) en plus des états.
+- **`tests/sonde.test.js`** : 14 tests (rotation, bornes du curseur, persistance sur disque,
+  ronde réelle avec réseau simulé, mesures geo/dead/cors/ok, routes, filtre public, rapport).
+
+### Modifié
+
+- `server/api/admin.js` perd la route de sonde (840 lignes) : elle vit dans
+  `server/api/admin-probe.js`, avec les mêmes permissions, déduites du couple méthode + chemin.
+- `server/core/health.js` : `classifyProbe` est exporté et la cause est écrite dans `health`.
+- La sonde de la console continue de privilégier les chaînes jamais testées ; la ronde, elle,
+  avance dans tout le catalogue.
+
+### Preuves
+
+- `npm test` : 421 tests, 85 suites, 0 échec (407/80 avant ; +14 tests, +5 suites).
+- `npm run rapport:lisibilite` sur le catalogue neuf : 1 475 chaînes, 0 mesurée, 1 475
+  restantes, 10 nuits pour finir le tour.
+- Ronde réelle sur le serveur v3.20.0 : `tested: 2`, curseur `0 → 2`, message
+  « 1473 chaînes restent à tester » ; le curseur est relu à `2` après redémarrage.
+- `npm run versionner:check` : adresses à jour en 3.20.0.
+
 ## [3.19.0] - 2026-10-31
 
 Les visiteurs ont désormais un compte. Il naît d'une inscription confirmée par e-mail, vit

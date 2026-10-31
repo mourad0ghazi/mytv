@@ -3,8 +3,8 @@
 // la console ouvre sur ce passage obligé : un nom, un mot de passe à soi, puis l'appareil.
 // Chaque étape appelle le vrai serveur ; rien n'est simulé, tout est vérifiable.
 
-import { Admin } from '../../api.js?v=3.19.0';
-import { h, icon, toast } from '../../ui.js?v=3.19.0';
+import { Admin } from '../../api.js?v=3.22.0';
+import { h, icon, toast } from '../../ui.js?v=3.22.0';
 
 /** Marque d'étape : faite, en cours, à faire. Une seule forme, un seul ton. */
 function marque(etape) {

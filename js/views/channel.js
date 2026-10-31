@@ -1,15 +1,53 @@
 // public/js/views/channel.js · écran 4 : fiche d'une chaîne (détail, variantes, chaînes proches).
 
-import { api } from '../api.js?v=3.19.0';
-import { COPY } from '../copy.js?v=3.19.0';
+import { api } from '../api.js?v=3.22.0';
+import { COPY } from '../copy.js?v=3.22.0';
 import {
   h, icon, fmtNumber, fmtRelative, spinner, emptyState, logoNode, healthBadge, toast, copyText,
   countryName, languageName,
-} from '../ui.js?v=3.19.0';
-import { channelCard, paintNow } from '../components.js?v=3.19.0';
-import { heureCourte, primeNow } from '../epg-now.js?v=3.19.0';
-import { getPlayer } from '../player.js?v=3.19.0';
-import { prefs } from '../prefs.js?v=3.19.0';
+} from '../ui.js?v=3.22.0';
+import { channelCard, paintNow } from '../components.js?v=3.22.0';
+import { heureCourte, primeNow } from '../epg-now.js?v=3.22.0';
+import { getPlayer } from '../player.js?v=3.22.0';
+import { prefs } from '../prefs.js?v=3.22.0';
+
+/**
+ * 3.20.0 · ce que la mesure dit vraiment du flux, en une phrase.
+ * Aucune promesse au-delà de ce qui a été constaté : une chaîne jamais testée le dit.
+ */
+const MESURE_COPY = {
+  up: { tone: 'ok', titre: 'Flux mesuré disponible', texte: 'La sonde a joint le flux.' },
+  flaky: { tone: 'warn', titre: 'Flux instable', texte: 'Le flux a répondu, mais lentement ou sans en-tête CORS.' },
+  down: { tone: 'danger', titre: 'Flux mesuré indisponible', texte: 'La sonde n’a pas pu joindre le flux.' },
+  unknown: { tone: 'info', titre: 'Flux jamais testé', texte: 'La mesure passera dans une prochaine ronde : le flux peut fonctionner comme échouer.' },
+};
+
+const RAISON_COPY = {
+  geo: 'réservé à une autre région',
+  dead: 'adresse expirée ou retirée',
+  unreachable: 'serveur injoignable',
+  cors: 'en-tête CORS absent : lecture hors navigateur seulement',
+  slow: 'réponse lente',
+  server: 'erreur du serveur d’origine',
+  http: 'réponse inattendue',
+  ok: 'réponse correcte',
+};
+
+function phraseMesure(healthDetail = {}, relay = {}) {
+  const etat = MESURE_COPY[healthDetail.status] || MESURE_COPY.unknown;
+  const quand = healthDetail.checkedAt
+    ? `Mesure du ${new Date(healthDetail.checkedAt).toLocaleString('fr-FR')}.`
+    : 'Aucune mesure enregistrée.';
+  const cause = RAISON_COPY[healthDetail.reason] ? ` Cause : ${RAISON_COPY[healthDetail.reason]}.` : '';
+  const navigateur = healthDetail.browserPlayable === true
+    ? 'Lisible directement dans le navigateur.'
+    : healthDetail.status === 'unknown'
+      ? ''
+      : relay.available
+        ? 'Le serveur peut relire ce flux pour votre navigateur.'
+        : 'Lecture dans le navigateur incertaine : essayez une variante ou signalez le flux.';
+  return { ...etat, texte: `${etat.texte} ${quand}${cause} ${navigateur}`.trim() };
+}
 
 const BLOCK_COPY = {
   'mixed-content': {
@@ -170,10 +208,29 @@ export async function renderChannel(container, ctx, id) {
           channel.country ? h('span', { class: 'badge' }, countryName(channel.country)) : null,
           channel.language ? h('span', { class: 'badge' }, languageName(channel.language)) : null,
           healthBadge(channel.health),
+          channel.geoRestricted ? h('span', { class: 'badge', dataset: { tone: 'warn' } }, 'Zone restreinte') : null,
           channel.featured ? h('span', { class: 'badge', dataset: { tone: 'warn' } }, 'En vedette') : null),
         h('div', { class: 'hero-actions', style: { marginTop: '18px' } }, playButton, favoriteBtn, copyBtn),
         programmeStrip),
     ),
+    // Annoncé par la liste d'origine : le dire avant le clic évite l'écran d'erreur.
+    channel.geoRestricted ? h('div', { class: 'banner', dataset: { tone: 'warn' }, style: { marginTop: '18px' } },
+      icon('alert', 16),
+      h('div', {},
+        h('p', { style: { fontWeight: '600' } }, 'Chaîne réservée à un autre pays'),
+        h('p', { class: 'muted', style: { fontSize: '13px' } },
+          'Le diffuseur déclare une restriction de zone. Hors de cette zone, le flux répond « non disponible » : '
+          + 'ce n’est pas une panne du site, et le relais ne contourne pas cette restriction.'))) : null,
+    channel.healthDetail ? (() => {
+      const mesure = phraseMesure(channel.healthDetail, channel.relay || {});
+      // Une chaîne mesurée disponible n'a pas besoin d'un bandeau : la pastille suffit.
+      if (channel.healthDetail.status === 'up' && channel.healthDetail.browserPlayable !== false) return null;
+      return h('div', { class: 'banner', dataset: { tone: mesure.tone }, style: { marginTop: '18px' } },
+        icon(channel.healthDetail.status === 'up' ? 'check' : 'alert', 16),
+        h('div', {},
+          h('p', { style: { fontWeight: '600' } }, mesure.titre),
+          h('p', { class: 'muted', style: { fontSize: '13px' } }, mesure.texte)));
+    })() : null,
     channel.blocked ? (() => {
       const info = BLOCK_COPY[channel.blockedReason] || BLOCK_COPY.dead;
       return h('div', { class: 'banner', dataset: { tone: 'warn' }, style: { marginTop: '18px' } },
@@ -195,7 +252,12 @@ export async function renderChannel(container, ctx, id) {
       metaItem('Source', channel.sourceId || 'Non renseigné'),
       metaItem('Ajoutée', fmtRelative(channel.lastSeenInSourceAt)),
       metaItem('Classement', `${Math.round((channel.confidence || 0) * 100)} % de confiance · ${channel.categorySource}`),
-      metaItem('Droits', channel.licenseNote || 'Non renseigné'))),
+      metaItem('Droits', channel.licenseNote || 'Non renseigné'),
+      metaItem('Dernière mesure', channel.healthDetail?.checkedAt
+        ? new Date(channel.healthDetail.checkedAt).toLocaleString('fr-FR') : 'Jamais testée'),
+      metaItem('Lisibilité navigateur', channel.healthDetail?.browserPlayable === true
+        ? 'Oui, en-tête CORS présent' : channel.healthDetail?.status === 'unknown' ? 'Inconnue' : 'Non confirmée'),
+      metaItem('Cause de la mesure', RAISON_COPY[channel.healthDetail?.reason] || 'Non renseignée'))),
     h('div', { class: 'panel', style: { marginTop: '18px' } },
       h('h2', { style: { fontSize: '16px', marginBottom: '10px' } }, 'Adresse du flux'),
       h('div', { class: 'url-box' },
