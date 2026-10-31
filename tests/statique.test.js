@@ -271,3 +271,55 @@ describe('Démonstration publiée : Anime, Films et Sources (3.18.0)', () => {
     }
   });
 });
+
+describe('Racine de publication : les fichiers du site suivent <base> (3.18.0)', () => {
+  test('withBase préfixe un chemin du site et laisse une adresse absolue intacte', async () => {
+    const dossier = await fsp.mkdtemp(path.join(os.tmpdir(), 'streamtv-base-'));
+    try {
+      await fsp.copyFile(path.join(ROOT, 'public', 'js', 'base.js'), path.join(dossier, 'base.js'));
+      globalThis.document = {
+        querySelector: (selecteur) => (selecteur === 'base' ? { href: 'https://exemple.test/mytv/' } : null),
+      };
+      globalThis.location = { href: 'https://exemple.test/mytv/', origin: 'https://exemple.test' };
+      const { withBase } = await import(`${pathToFileURL(path.join(dossier, 'base.js')).href}?cas=${Date.now()}`);
+      assert.equal(withBase('/posters/anime-sintel.svg'), '/mytv/posters/anime-sintel.svg');
+      assert.equal(withBase('/demo/anime.json'), '/mytv/demo/anime.json');
+      assert.equal(withBase('https://exemple.test/logo.png'), 'https://exemple.test/logo.png');
+      assert.equal(withBase('//cdn.exemple.test/x.png'), '//cdn.exemple.test/x.png');
+    } finally {
+      delete globalThis.document;
+      delete globalThis.location;
+      preparerNavigateur();
+      await fsp.rm(dossier, { recursive: true, force: true });
+    }
+  });
+
+  test('aucune affiche n’est posée à la racine du domaine', async () => {
+    const modules = {
+      'public/js/vod-ui.js': 'item',
+      'public/js/views/anime.js': 'anime',
+      'public/js/views/films.js': 'film',
+      'public/js/views/search.js': 'result',
+      'public/js/ui.js': 'channel',
+    };
+    for (const [fichier, variable] of Object.entries(modules)) {
+      const source = await fsp.readFile(path.join(ROOT, fichier), 'utf8');
+      const ligne = source.split('\n').find((ligneSource) => ligneSource.includes('withBase')
+        && ligneSource.includes('base.js'));
+      assert.ok(ligne, `${fichier} n’importe pas withBase depuis base.js`);
+      const nus = [...source.matchAll(new RegExp(`src:\\s*${variable}\\.(?:poster|logo)\\b`, 'g'))];
+      assert.deepEqual(nus.map((m) => m[0]), [], `${fichier} sert une image sans racine de publication`);
+    }
+  });
+
+  test('la démonstration publiée garde ses affiches sous /mytv/', async () => {
+    const anime = JSON.parse(await fsp.readFile(path.join(ROOT, 'demo', 'anime.json'), 'utf8'));
+    const films = JSON.parse(await fsp.readFile(path.join(ROOT, 'demo', 'films.json'), 'utf8'));
+    const affiches = [...anime.items, ...films.items].map((item) => item.poster).filter(Boolean);
+    assert.ok(affiches.length >= 10, `${affiches.length} affiches`);
+    for (const affiche of affiches) {
+      assert.match(affiche, /^\/posters\/[\w-]+\.svg$/, `affiche hors du dossier livré : ${affiche}`);
+      await fsp.access(path.join(ROOT, 'public', affiche.replace(/^\//, '')));
+    }
+  });
+});

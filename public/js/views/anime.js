@@ -2,14 +2,15 @@
 // Trois rangées nommées, une rangée vide n'est jamais rendue, trois affiches par ligne
 // sur téléphone (vérifié par un test de gabarit, pas à l'œil).
 
-import { api } from '../api.js?v=3.18.0';
-import { COPY } from '../copy.js?v=3.18.0';
-import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, toast } from '../ui.js?v=3.18.0';
-import { prefs } from '../prefs.js?v=3.18.0';
-import { getPlayer } from '../player.js?v=3.18.0';
+import { api } from '../api.js?v=3.18.1';
+import { withBase } from '../base.js?v=3.18.1';
+import { COPY } from '../copy.js?v=3.18.1';
+import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, toast } from '../ui.js?v=3.18.1';
+import { prefs } from '../prefs.js?v=3.18.1';
+import { getPlayer } from '../player.js?v=3.18.1';
 import {
   fmtDuration, fmtPosition, sourcesBlock, vodCard, vodFilters, vodPager, vodRow,
-} from '../vod-ui.js?v=3.18.0';
+} from '../vod-ui.js?v=3.18.1';
 
 const STATUSES = [
   { id: 'en_cours', label: 'En cours' },
@@ -32,7 +33,7 @@ export function playEpisode({ anime, episode, navigate }) {
     id: anime.id,
     name: `${anime.title} · ${episode.title}`,
     url: episode.url,
-    logo: anime.poster,
+    logo: anime.poster ? withBase(anime.poster) : '',
     quality: episode.quality || 'HD',
     category: 'anime',
     categoryLabel: 'Anime',
@@ -279,7 +280,7 @@ export async function renderAnimeDetail(container, ctx, id) {
     h('section', { class: 'vod-hero' },
       h('div', { class: 'vod-hero-poster' },
         anime.poster
-          ? h('img', { src: anime.poster, alt: '', width: '300', height: '450' })
+          ? h('img', { src: withBase(anime.poster), alt: '', width: '300', height: '450' })
           : h('span', { class: 'vod-initial', 'aria-hidden': 'true', text: anime.title.slice(0, 2).toUpperCase() })),
       h('div', { class: 'vod-hero-text' },
         h('p', { class: 'eyebrow' }, 'Anime'),

@@ -1,11 +1,11 @@
 // public/js/views/admin/backups.js · onglet Sauvegardes : création immédiate, rotation 7+4, restauration confirmée.
 // Toute restauration exige le mot « RESTAURER » et une empreinte SHA-256 valide.
 
-import { Admin, auth, download } from '../../api.js?v=3.18.0';
-import { loginHref } from '../../console.js?v=3.18.0';
-import { h, icon, modal, toast, emptyState, fmtDate, fmtNumber } from '../../ui.js?v=3.18.0';
-import { statCard } from '../../components.js?v=3.18.0';
-import { field, confirmModal, apiGuard } from './common.js?v=3.18.0';
+import { Admin, auth, download } from '../../api.js?v=3.18.1';
+import { loginHref } from '../../console.js?v=3.18.1';
+import { h, icon, modal, toast, emptyState, fmtDate, fmtNumber } from '../../ui.js?v=3.18.1';
+import { statCard } from '../../components.js?v=3.18.1';
+import { field, confirmModal, apiGuard } from './common.js?v=3.18.1';
 
 /* ------------------------------------------------------------------ F-24 : sortie SQL */
 

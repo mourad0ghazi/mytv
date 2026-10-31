@@ -1,17 +1,17 @@
 // public/js/player.js · lecteur : 7 états, détection de cause, 12 mires (§8).
 // Invariants : une seule reprise automatique, hls.destroy() à chaque sortie, aucun minuteur orphelin.
 
-import { consoleHref } from './console.js?v=3.18.0';
-import { api } from './api.js?v=3.18.0';
-import { COPY } from './copy.js?v=3.18.0';
-import { h, icon, toast, copyText, logoNode } from './ui.js?v=3.18.0';
-import { openPlayerOptions, openShortcuts } from './player-menu.js?v=3.18.0';
-import { leaveFullscreen, toggleFullscreen } from './player-fullscreen.js?v=3.18.0';
-import { prefs } from './prefs.js?v=3.18.0';
-import { nowFor, heureCourte, progression } from './epg-now.js?v=3.18.0';
+import { consoleHref } from './console.js?v=3.18.1';
+import { api } from './api.js?v=3.18.1';
+import { COPY } from './copy.js?v=3.18.1';
+import { h, icon, toast, copyText, logoNode } from './ui.js?v=3.18.1';
+import { openPlayerOptions, openShortcuts } from './player-menu.js?v=3.18.1';
+import { leaveFullscreen, toggleFullscreen } from './player-fullscreen.js?v=3.18.1';
+import { prefs } from './prefs.js?v=3.18.1';
+import { nowFor, heureCourte, progression } from './epg-now.js?v=3.18.1';
 import {
   mireActionNodes, mireForBlocked, mireNode, mireRetryNode, similarPanel, wireGestures,
-} from './player-similar.js?v=3.18.0';
+} from './player-similar.js?v=3.18.1';
 
 const MIRES = COPY.player.mires;
 

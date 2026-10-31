@@ -1,6 +1,6 @@
 // public/js/api.js · client HTTP unique. Toute erreur devient une phrase française.
 
-import { withBase } from './base.js?v=3.18.0';
+import { withBase } from './base.js?v=3.18.1';
 
 const TOKEN_KEY = 'streamtv.token';
 

@@ -1,11 +1,11 @@
 // public/js/views/admin/health.js · onglet Santé : sonde bornée, états up/flaky/down/unknown.
 // Une sonde ne bloque jamais la console : elle est plafonnée en durée et en nombre.
 
-import { Admin } from '../../api.js?v=3.18.0';
-import { h, icon, modal, toast, spinner, emptyState, fmtNumber, healthLabel } from '../../ui.js?v=3.18.0';
-import { statCard } from '../../components.js?v=3.18.0';
-import { confirmModal, apiGuard } from './common.js?v=3.18.0';
-import { channelModal } from './catalogue.js?v=3.18.0';
+import { Admin } from '../../api.js?v=3.18.1';
+import { h, icon, modal, toast, spinner, emptyState, fmtNumber, healthLabel } from '../../ui.js?v=3.18.1';
+import { statCard } from '../../components.js?v=3.18.1';
+import { confirmModal, apiGuard } from './common.js?v=3.18.1';
+import { channelModal } from './catalogue.js?v=3.18.1';
 
 /* ------------------------------------------------------------------ F-22 : apprentissage */
 

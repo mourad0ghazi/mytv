@@ -173,7 +173,7 @@ describe('Contrat de données (§4)', () => {
     assert.equal(depthUiSchema(schema), SETTING_COUNT);
   });
 
-  test('limites techniques conformes au cahier des charges', () => {
+  test('limites techniques conformes au cahier des charges', async () => {
     assert.equal(LIMITS.pageSizeMax, 60);
     assert.equal(LIMITS.domCardsMax, 120);
     assert.equal(LIMITS.probeConcurrency, 8);
@@ -182,7 +182,8 @@ describe('Contrat de données (§4)', () => {
     assert.equal(LIMITS.backupDaily, 7);
     assert.equal(LIMITS.backupWeekly, 4);
     assert.equal(LIMITS.importMaxMs, 120000);
-    assert.equal(VERSION, '3.18.0');
+    const pkg = JSON.parse(await fsp.readFile(path.join(ROOT, 'package.json'), 'utf8'));
+    assert.equal(VERSION, pkg.version, 'la version du serveur est celle de package.json');
   });
 
   test('une seule version partout : serveur, page, worker', async () => {

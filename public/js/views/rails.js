@@ -2,11 +2,11 @@
 // Trois sources, aucune donnée envoyée : historique local, favoris, et à défaut
 // les catégories les plus fournies du catalogue (repli éditorial identique pour tous).
 
-import { api } from '../api.js?v=3.18.0';
-import { h, icon } from '../ui.js?v=3.18.0';
-import { channelCard, paintNow } from '../components.js?v=3.18.0';
-import { prefs } from '../prefs.js?v=3.18.0';
-import { nowCached, primeNow } from '../epg-now.js?v=3.18.0';
+import { api } from '../api.js?v=3.18.1';
+import { h, icon } from '../ui.js?v=3.18.1';
+import { channelCard, paintNow } from '../components.js?v=3.18.1';
+import { prefs } from '../prefs.js?v=3.18.1';
+import { nowCached, primeNow } from '../epg-now.js?v=3.18.1';
 
 const MAX_RAIL = 10;
 

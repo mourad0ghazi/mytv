@@ -1,17 +1,18 @@
 // public/js/views/search.js · recherche globale : chaînes, anime et films dans une seule liste.
 // Chaque résultat dit son type par un mot (Chaîne, Anime, Film), jamais par une couleur.
 
-import { api } from '../api.js?v=3.18.0';
-import { COPY } from '../copy.js?v=3.18.0';
-import { h, icon, fmtNumber, emptyState, spinner, logoNode } from '../ui.js?v=3.18.0';
-import { prefs } from '../prefs.js?v=3.18.0';
+import { api } from '../api.js?v=3.18.1';
+import { withBase } from '../base.js?v=3.18.1';
+import { COPY } from '../copy.js?v=3.18.1';
+import { h, icon, fmtNumber, emptyState, spinner, logoNode } from '../ui.js?v=3.18.1';
+import { prefs } from '../prefs.js?v=3.18.1';
 
 const KIND_TONE = { chaine: 'Chaîne', anime: 'Anime', film: 'Film' };
 
 function resultRow(result, { navigate }) {
   const media = result.poster
     ? h('span', { class: 'search-result-media' },
-      h('img', { src: result.poster, alt: '', loading: 'lazy', decoding: 'async', width: '64', height: '96' }))
+      h('img', { src: withBase(result.poster), alt: '', loading: 'lazy', decoding: 'async', width: '64', height: '96' }))
     : h('span', { class: 'search-result-media' }, h('span', { class: 'vod-initial', 'aria-hidden': 'true', text: (result.title || '?').slice(0, 2).toUpperCase() }));
 
   return h('li', { class: 'search-result' },

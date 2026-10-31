@@ -1,11 +1,11 @@
 // public/js/views/admin/import.js · onglet Importation : aperçu obligatoire, puis confirmation unique.
 // L'aperçu ne modifie rien ; le commit est sérialisé côté serveur (verrou global, ERR-13).
 
-import { Admin, ApiError } from '../../api.js?v=3.18.0';
-import { COPY } from '../../copy.js?v=3.18.0';
-import { h, icon, modal, toast, spinner, emptyState, fmtNumber, fmtRelative } from '../../ui.js?v=3.18.0';
-import { statCard } from '../../components.js?v=3.18.0';
-import { field, confirmModal, apiGuard } from './common.js?v=3.18.0';
+import { Admin, ApiError } from '../../api.js?v=3.18.1';
+import { COPY } from '../../copy.js?v=3.18.1';
+import { h, icon, modal, toast, spinner, emptyState, fmtNumber, fmtRelative } from '../../ui.js?v=3.18.1';
+import { statCard } from '../../components.js?v=3.18.1';
+import { field, confirmModal, apiGuard } from './common.js?v=3.18.1';
 
 /* ------------------------------------------------------------------ importation */
 

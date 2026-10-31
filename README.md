@@ -1,4 +1,4 @@
-# StreamTV v3.18.0
+# StreamTV v3.18.1
 
 > Toute ta télévision, dans un seul endroit.
 
@@ -214,7 +214,7 @@ public/
   sw.js, offline.html    PWA : coquille en cache, API jamais mise en cache
   vendor/hls.min.js      hls.js 1.5.17 épinglé, Apache-2.0, servi localement
 scripts/                 ingest.js, measure-tagger.js, backup.js, verify.js
-tests/                   390 tests node:test (core, api, vidéo à la demande, sources, documentation, sécurité, client, messages, epg, alertes, apprentissage, migration, conformité, design)
+tests/                   393 tests node:test (core, api, vidéo à la demande, sources, documentation, sécurité, client, messages, epg, alertes, apprentissage, migration, conformité, design)
 docs/PV-RECETTE.md       procès-verbal de recette
 ```
 
@@ -345,7 +345,7 @@ Le cookie d'entrée de la console est alors marqué `Secure`, et le site n'accep
 
 ### Une adresse par version (3.17.0)
 
-Chaque module est demandé avec sa version : `js/app.js?v=3.18.0`, `js/api.js?v=3.18.0`.
+Chaque module est demandé avec sa version : `js/app.js?v=3.18.1`, `js/api.js?v=3.18.1`.
 Une page neuve ne peut donc pas être exécutée avec un fichier ancien, même si le navigateur
 en garde une copie : l'adresse est inédite, la réponse vient du réseau.
 
@@ -641,7 +641,7 @@ est signalé comme **avertissement** (attendu en démonstration, à corriger ava
 ## 7. Tests
 
 ```bash
-npm test            # 75 suites, 390 tests, aucune dépendance
+npm test            # 76 suites, 393 tests, aucune dépendance
 ```
 
 | Suite | Ce qu’elle prouve |
