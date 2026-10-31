@@ -30,6 +30,7 @@ import { Router } from './http/router.js';
 import { sendError, sendSecurityHeaders, sendText } from './http/respond.js';
 import { resolvePublic, serveStatic } from './http/static.js';
 import { registerPublicRoutes } from './api/public.js';
+import { registerRelayRoutes } from './api/relay.js';
 import { registerReportRoutes } from './api/report.js';
 import { registerConsoleRoutes } from './api/console.js';
 import { registerAdminRoutes } from './api/admin.js';
@@ -220,6 +221,9 @@ export async function createApp() {
     authorize: (session, permission) => can(session?.role, permission),
   });
   registerPublicRoutes(router, app);
+  // Essai local et tests : le relais accepte HTTP sur la boucle locale. Jamais en production.
+  app.relayInsecure = process.env.STREAMTV_RELAIS_HTTP === '1';
+  registerRelayRoutes(router, app);
   registerVodRoutes(router, app);
   registerAdminRoutes(router, app);
   registerSourcesRoutes(router, app);

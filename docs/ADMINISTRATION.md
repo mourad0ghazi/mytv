@@ -268,6 +268,24 @@ Routes : `POST /api/admin/health/probe` (file des chaînes jamais testées),
 `POST /api/admin/health/ronde` (lot suivant du catalogue, `ids` pour cibler 100 chaînes au
 plus), `GET /api/admin/health/resume` (photographie de la mesure, sans sonder).
 
+### Relais des flux (3.21.0)
+
+Une chaîne peut répondre au serveur et refuser le navigateur : la cause est `cors`. Le serveur
+relit alors le flux pour le compte du visiteur, sans jamais sortir du catalogue.
+
+- **Liste blanche** : seuls les hôtes des chaînes dont la source (ou la fiche) déclare une
+  licence sont relayés. Ni IP littérale, ni HTTP, ni redirection, ni adresse hors liste.
+- **Fragments réécrits** : variantes, fragments, clés `#EXT-X-KEY`, cartes `#EXT-X-MAP` et
+  pistes `#EXT-X-MEDIA` passent par `/api/relais/:id/s?u=…`. Une adresse hors liste reste en
+  clair : elle n'est jamais servie par le site.
+- **Plafonds** : 512 Ko par playlist, 12 Mo par fragment, 15 s par requête, 32 requêtes de
+  relais simultanées. Au-delà : ERR-15 (trop gros), ERR-20 (délai), ERR-17 (trop de requêtes).
+- **Dans le lecteur** : le relais n'est tenté qu'après un échec direct, une seule fois, et le
+  lecteur l'annonce. La fiche affiche « Le serveur peut relire ce flux pour votre navigateur »
+  quand l'adresse est relayable.
+- **Licence** : un flux n'entre au catalogue que par une source licenciée ; le relais ne fait
+  que relire ce qui y est déjà publié, et la licence reste affichée là où le contenu est offert.
+
 Permissions : `diagnostic`, `catalogue.write` pour masquer une chaîne depuis la fiche.
 
 ## Onglet Sauvegardes

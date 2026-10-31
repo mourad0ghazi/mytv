@@ -1,7 +1,7 @@
 // server/core/constants.js — référentiels fermés : 18 catégories, qualités, limites, tri.
 // Toute valeur hors de ces tables est refusée à l'écriture (ERR-04).
 
-export const VERSION = '3.20.0';
+export const VERSION = '3.21.0';
 export const SPEC_VERSION = '2.0';
 
 export const CATEGORIES = [
@@ -104,7 +104,7 @@ export const TVG_GENRE_HINTS = {
 export const QUALITIES = ['SD', 'HD', 'FHD', '4K', '8K', 'AUTO'];
 export const QUALITY_RANK = { AUTO: 0, SD: 1, HD: 2, FHD: 3, '4K': 4, '8K': 5 };
 
-export const SORTS = ['number', 'name', 'category', 'recent', 'confidence', 'quality'];
+export const SORTS = ['number', 'name', 'category', 'recent', 'confidence', 'quality', 'lisibilite'];
 
 export const LIMITS = {
   maxBodyPublic: 1024,

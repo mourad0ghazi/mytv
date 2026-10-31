@@ -14,6 +14,7 @@ import { isLinkToken, linkDigest, linkUsable, sameDigest } from '../core/access-
 import { buildEpg } from '../core/epg.js';
 import { catalogForClient } from '../core/messages.js';
 import { reportThreshold } from '../core/reports.js';
+import { relayInfo } from '../core/relay.js';
 import { queryInt, queryString } from '../http/router.js';
 
 function publicChannels(app) {
@@ -319,9 +320,12 @@ export function registerPublicRoutes(router, app) {
       .filter((item) => item.id !== channel.id && item.category === channel.category && isPublic(item, settings))
       .slice(0, 8)
       .map(projectCard);
+    const detail = projectDetail(channel, settings, app.siteProtocol);
+    // Le relais n'est annoncé que s'il peut réellement servir cette chaîne.
+    detail.relay = relayInfo(app.store, channel, { insecure: Boolean(app.relayInsecure) });
     return {
       body: {
-        channel: projectDetail(channel, settings, app.siteProtocol),
+        channel: detail,
         related,
         alternatives: findAlternatives(app, channel, settings),
         variants: channel.variants.map((variant) => ({

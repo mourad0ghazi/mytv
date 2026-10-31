@@ -1,15 +1,15 @@
 // public/js/views/channel.js · écran 4 : fiche d'une chaîne (détail, variantes, chaînes proches).
 
-import { api } from '../api.js?v=3.20.0';
-import { COPY } from '../copy.js?v=3.20.0';
+import { api } from '../api.js?v=3.21.0';
+import { COPY } from '../copy.js?v=3.21.0';
 import {
   h, icon, fmtNumber, fmtRelative, spinner, emptyState, logoNode, healthBadge, toast, copyText,
   countryName, languageName,
-} from '../ui.js?v=3.20.0';
-import { channelCard, paintNow } from '../components.js?v=3.20.0';
-import { heureCourte, primeNow } from '../epg-now.js?v=3.20.0';
-import { getPlayer } from '../player.js?v=3.20.0';
-import { prefs } from '../prefs.js?v=3.20.0';
+} from '../ui.js?v=3.21.0';
+import { channelCard, paintNow } from '../components.js?v=3.21.0';
+import { heureCourte, primeNow } from '../epg-now.js?v=3.21.0';
+import { getPlayer } from '../player.js?v=3.21.0';
+import { prefs } from '../prefs.js?v=3.21.0';
 
 /**
  * 3.20.0 · ce que la mesure dit vraiment du flux, en une phrase.
@@ -33,7 +33,7 @@ const RAISON_COPY = {
   ok: 'réponse correcte',
 };
 
-function phraseMesure(healthDetail = {}) {
+function phraseMesure(healthDetail = {}, relay = {}) {
   const etat = MESURE_COPY[healthDetail.status] || MESURE_COPY.unknown;
   const quand = healthDetail.checkedAt
     ? `Mesure du ${new Date(healthDetail.checkedAt).toLocaleString('fr-FR')}.`
@@ -43,7 +43,9 @@ function phraseMesure(healthDetail = {}) {
     ? 'Lisible directement dans le navigateur.'
     : healthDetail.status === 'unknown'
       ? ''
-      : 'Lecture dans le navigateur incertaine : essayez une variante ou signalez le flux.';
+      : relay.available
+        ? 'Le serveur peut relire ce flux pour votre navigateur.'
+        : 'Lecture dans le navigateur incertaine : essayez une variante ou signalez le flux.';
   return { ...etat, texte: `${etat.texte} ${quand}${cause} ${navigateur}`.trim() };
 }
 
@@ -211,7 +213,7 @@ export async function renderChannel(container, ctx, id) {
         programmeStrip),
     ),
     channel.healthDetail ? (() => {
-      const mesure = phraseMesure(channel.healthDetail);
+      const mesure = phraseMesure(channel.healthDetail, channel.relay || {});
       // Une chaîne mesurée disponible n'a pas besoin d'un bandeau : la pastille suffit.
       if (channel.healthDetail.status === 'up' && channel.healthDetail.browserPlayable !== false) return null;
       return h('div', { class: 'banner', dataset: { tone: mesure.tone }, style: { marginTop: '18px' } },

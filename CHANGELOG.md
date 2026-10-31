@@ -3,6 +3,44 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 Versionnement sémantique. Toutes les dates sont au format `AAAA-MM-JJ`.
 
+## [3.21.0] - 2026-10-31
+
+Beaucoup de chaînes répondent au serveur et refusent le navigateur : la mesure le voyait
+(`cors`), le lecteur échouait quand même, faute d'un chemin de lecture. Le serveur relit
+désormais ces flux pour le compte du visiteur, **uniquement** pour des adresses déjà publiées
+par une source licenciée.
+
+### Ajouté
+
+- **`server/core/relay.js`** : liste blanche des hôtes du catalogue licencié, refus des
+  adresses hors liste, en HTTP, en IP littérale et des redirections ; réécriture des playlists
+  (variantes, fragments, clés `#EXT-X-KEY`, cartes `#EXT-X-MAP`, pistes `#EXT-X-MEDIA`) ;
+  lectures plafonnées (512 Ko pour une playlist, 12 Mo pour un fragment, 15 s par requête).
+- **`server/api/relay.js`** : `GET /api/relais/:id/flux.m3u8` et `GET /api/relais/:id/s?u=…`.
+  Une chaîne masquée reste introuvable ; un hôte hors liste blanche reçoit ERR-09.
+- **Fiche publique** : `relay` annonce si le flux est relayable et sous quelle adresse. Le
+  lecteur ne s'en sert qu'après un échec direct, une seule fois, et le dit à l'écran.
+- **Tri `lisibilite`** : mesuré joignable, puis non testé, puis hors service. Disponible dans
+  le sélecteur de tri de l'accueil (« Lisibilité »).
+- **`tests/relais.test.js`** : 19 tests (liste blanche, refus, réécriture, fragments servis,
+  plafonds, tri, relais complet contre un diffuseur local).
+
+### Modifié
+
+- La fiche d'une chaîne dont le relais est disponible remplace « lecture incertaine » par
+  « Le serveur peut relire ce flux pour votre navigateur ».
+- `STREAMTV_RELAIS_HTTP=1` autorise HTTP sur la boucle locale (essais et tests uniquement,
+  jamais en production).
+
+### Preuves
+
+- `npm test` : 440 tests, 91 suites, 0 échec.
+- `tests/relais.test.js` : 19 tests, 6 suites, 0 échec ; le diffuseur local sert une playlist
+  maîtresse, une playlist de variantes, une clé, un fragment TS, une redirection et un 404.
+- Requête refusée hors liste (`ERR-09`), sans adresse (`ERR-02`), chaîne inconnue (`ERR-10`),
+  playlist trop grosse (`ERR-15`), diffuseur qui répond 404 (`ERR-16`), redirection non
+  suivie (`ERR-09`).
+
 ## [3.20.0] - 2026-10-31
 
 Une chaîne n'est « qui ne marche pas » que si on l'a mesuré. Le catalogue comptait 1 475

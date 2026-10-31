@@ -1,12 +1,12 @@
 // public/js/views/admin/catalogue.js · onglet Catalogue : table paginée, actions groupées, fiche d'édition.
 // Aucune donnée métier n'est recalculée ici : l'API reste la seule source de vérité.
 
-import { Admin, ApiError } from '../../api.js?v=3.20.0';
-import { COPY } from '../../copy.js?v=3.20.0';
+import { Admin, ApiError } from '../../api.js?v=3.21.0';
+import { COPY } from '../../copy.js?v=3.21.0';
 import {
   h, icon, modal, toast, emptyState, spinner, fmtNumber, logoNode, healthBadge, debounce,
-} from '../../ui.js?v=3.20.0';
-import { field, confirmModal, apiGuard } from './common.js?v=3.20.0';
+} from '../../ui.js?v=3.21.0';
+import { field, confirmModal, apiGuard } from './common.js?v=3.21.0';
 
 /* ------------------------------------------------------------------ catalogue */
 

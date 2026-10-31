@@ -585,3 +585,41 @@ supprime jamais une chaîne : elle la signale.
 Un flux `up` mais avec la cause `cors` est lisible par `curl` et refusé par le lecteur du
 navigateur. Le relais HLS sur liste blanche licenciée est prévu au lot suivant ; d'ici là ces
 chaînes restent hors du filtre « Flux vérifiés ».
+
+## 12. Relais des flux refusés par le navigateur (3.21.0)
+
+Un flux mesuré `up` avec la cause `cors` répond au serveur mais pas au lecteur du navigateur.
+Le serveur peut le relire : `/api/relais/:id/flux.m3u8`.
+
+### Vérifier qu'un flux est relayable
+
+- Fiche publique de la chaîne, `GET /api/channels/:id` : `channel.relay.available` à `true` et
+  `channel.relay.url` renseigné.
+- Ligne de commande :
+  `curl -s http://127.0.0.1:3000/api/relais/<identifiant>/flux.m3u8 | head`
+  doit rendre une playlist dont les adresses commencent par `/api/relais/`.
+
+### Un relais répond 403 (ERR-09)
+
+- L'hôte demandé n'est pas dans la liste blanche : la chaîne n'a ni source licenciée ni note de
+  licence. Corriger la source dans l'onglet Sources, ou la fiche de la chaîne.
+- Une redirection du diffuseur est refusée exprès : le relais ne suit pas une adresse qui
+  sortirait de la liste blanche.
+
+### Un relais répond 400 (ERR-04)
+
+- Adresse en HTTP : elle n'est acceptée que sur la boucle locale, et seulement avec
+  `STREAMTV_RELAIS_HTTP=1` (essais et tests). En production, tout passe par HTTPS.
+
+### Charge et mémoire
+
+Chaque fragment relayé est lu en mémoire avant d'être servi. Plafonds : 12 Mo par fragment,
+32 relais simultanés, au-delà la requête reçoit ERR-17. Un pic de spectateurs sur une chaîne
+relayée se surveille comme une hausse d'usage CPU et réseau sur Fly.io
+(`fly dashboard`, métriques de la machine).
+
+### Un flux relayé saccade
+
+Le relais ajoute un aller-retour serveur : préférer une variante de qualité inférieure, ou
+laisser le lecteur choisir une autre source de la même chaîne. Si le flux direct fonctionne
+chez certains visiteurs et pas d'autres, la cause est bien le CORS du diffuseur, pas la charge.

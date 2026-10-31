@@ -3,7 +3,7 @@
 // passer en plein écran natif. Aucun de ces chemins ne doit lever d'exception : un bouton
 // qui ne répond pas est pire qu'un bouton absent.
 
-import { toast } from './ui.js?v=3.20.0';
+import { toast } from './ui.js?v=3.21.0';
 
 function elementActif() {
   const doc = document;

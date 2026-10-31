@@ -202,6 +202,10 @@ export function buildPredicate(filters = {}, settings = {}) {
 
 const CATEGORY_ORDER = Object.fromEntries(CATEGORIES.map((category, index) => [category.id, index]));
 
+// Tri lisibilité : ce qui est mesuré joignable d'abord, ce qui n'a jamais été testé ensuite,
+// ce qui est hors service à la fin. À égalité, l'ordre du catalogue.
+const HEALTH_ORDER = { up: 0, flaky: 1, unknown: 2, down: 3 };
+
 export function sortChannels(channels, sort = 'number') {
   const key = SORTS.includes(sort) ? sort : 'number';
   const collator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
@@ -213,6 +217,7 @@ export function sortChannels(channels, sort = 'number') {
       case 'recent': return String(b.createdAt).localeCompare(String(a.createdAt)) || a.number - b.number;
       case 'confidence': return b.confidence - a.confidence || a.number - b.number;
       case 'quality': return (QUALITY_RANK[b.quality] || 0) - (QUALITY_RANK[a.quality] || 0) || a.number - b.number;
+      case 'lisibilite': return (HEALTH_ORDER[a.health] ?? 2) - (HEALTH_ORDER[b.health] ?? 2) || a.number - b.number;
       default: return a.number - b.number;
     }
   });

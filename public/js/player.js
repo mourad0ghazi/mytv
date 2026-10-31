@@ -1,17 +1,17 @@
 // public/js/player.js · lecteur : 7 états, détection de cause, 12 mires (§8).
 // Invariants : une seule reprise automatique, hls.destroy() à chaque sortie, aucun minuteur orphelin.
 
-import { consoleHref } from './console.js?v=3.20.0';
-import { api } from './api.js?v=3.20.0';
-import { COPY } from './copy.js?v=3.20.0';
-import { h, icon, toast, copyText, logoNode } from './ui.js?v=3.20.0';
-import { openPlayerOptions, openShortcuts } from './player-menu.js?v=3.20.0';
-import { leaveFullscreen, toggleFullscreen } from './player-fullscreen.js?v=3.20.0';
-import { prefs } from './prefs.js?v=3.20.0';
-import { nowFor, heureCourte, progression } from './epg-now.js?v=3.20.0';
+import { consoleHref } from './console.js?v=3.21.0';
+import { api } from './api.js?v=3.21.0';
+import { COPY } from './copy.js?v=3.21.0';
+import { h, icon, toast, copyText, logoNode } from './ui.js?v=3.21.0';
+import { openPlayerOptions, openShortcuts } from './player-menu.js?v=3.21.0';
+import { leaveFullscreen, toggleFullscreen } from './player-fullscreen.js?v=3.21.0';
+import { prefs } from './prefs.js?v=3.21.0';
+import { nowFor, heureCourte, progression } from './epg-now.js?v=3.21.0';
 import {
   mireActionNodes, mireForBlocked, mireNode, mireRetryNode, similarPanel, wireGestures,
-} from './player-similar.js?v=3.20.0';
+} from './player-similar.js?v=3.21.0';
 
 const MIRES = COPY.player.mires;
 
@@ -92,6 +92,8 @@ class Player {
     this.teardown(false);
     this.channel = channel;
     this.attempts = 0;
+    // Relais serveur : utile seulement si le diffuseur refuse le navigateur (CORS).
+    this.relayUrl = channel.relay?.available ? channel.relay.url : '';
     this.triedUrls = new Set([channel.url]);
     this.fallbackChannel = '';
     this.similarList = [];
@@ -377,6 +379,15 @@ class Player {
    * Chaque piste n'est tentée qu'une fois, pour ne jamais boucler.
    */
   tryFallback() {
+    // Le flux a échoué dans le navigateur alors que le serveur le joint : on le relit une fois.
+    if (this.relayUrl && !this.triedUrls.has(this.relayUrl)) {
+      this.triedUrls.add(this.relayUrl);
+      this.announce('Le flux passe par le serveur : le diffuseur refuse le navigateur.');
+      this.releaseEngine();
+      this.setState('PREPARING');
+      this.startPlayback(this.relayUrl);
+      return true;
+    }
     const variante = (this.channel?.variants || []).find((item) => item.url && !this.triedUrls.has(item.url));
     if (variante) {
       this.triedUrls.add(variante.url);

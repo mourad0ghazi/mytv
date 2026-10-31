@@ -347,12 +347,12 @@ l'atelier. Le rendu réel est contrôlé après publication, sur le site en lign
 ### Recette des écrans de la 3.18.1
 
 Complément daté du 31 octobre 2026. Il ne remplace pas le procès-verbal initial (3.8.0) :
-il consigne ce que la 3.20.0 ajoute et les preuves exécutées ce jour-là, sans retirer celles
+il consigne ce que la 3.21.0 ajoute et les preuves exécutées ce jour-là, sans retirer celles
 des versions précédentes (3.18.0, corrigée par la 3.18.1).
 
 | Point | Vérification | Résultat |
 |---|---|---|
-| Tests | `npm test` : 421 tests, 85 suites, 0 échec, 0 ignoré | conforme |
+| Tests | `npm test` : 440 tests, 91 suites, 0 échec, 0 ignoré | conforme |
 | Contrôles d'exploitation | `node scripts/verify.js --base http://127.0.0.1:3000` : 53 contrôles réussis sur 54 | conforme, 1 avertissement attendu (mot de passe de démonstration) |
 | Catalogue anime | 7 fiches publiées, toutes avec licence et au moins un épisode | conforme |
 | Catalogue films | 6 fiches publiées, toutes avec licence et une adresse de lecture | conforme |
@@ -371,6 +371,7 @@ des versions précédentes (3.18.0, corrigée par la 3.18.1).
 | Inscription fermée | `registrationMode` = `ferme` refuse toute nouvelle inscription (403) sans toucher aux comptes | conforme, test dédié |
 | Sonde rotative | 150 chaînes par nuit, curseur relu après redémarrage, tour complet en 10 nuits | conforme, `tests/sonde.test.js` et essai en direct |
 | Lisibilité publiée | date et cause de la mesure sur la fiche, filtre « Flux vérifiés » sur l'accueil | conforme, `tests/sonde.test.js` |
+| Relais des flux | flux refusé par le navigateur relu par le serveur, hôtes hors liste licenciée refusés | conforme, `tests/relais.test.js` et essai contre un diffuseur local |
 | Publication | `npm run build:static`, base `/mytv/`, anime, films et sources dans l'instantané | conforme, `tests/statique.test.js` |
 | Adresse en ligne | `https://mourad0ghazi.github.io/mytv/` : accueil, anime, films, recherche et fiches | artefact vérifié localement sous `/mytv/` par les 13 contrôles de `npm run verifier:publication` ; activation Pages à faire dans les réglages du dépôt (l’API refuse, 403) |
 

@@ -2,7 +2,7 @@
 // Les textes du §9 ne sont pas recopiés ici : ils viennent de /api/errors/catalog, seule source.
 // Ce module ne fait que décrire les familles (ordre, libellé, promesse faite au lecteur).
 
-import { api } from '../api.js?v=3.20.0';
+import { api } from '../api.js?v=3.21.0';
 
 export const ERRORS_CODES = [
   { code: 'ERR-01', status: 400, message: 'Le formulaire est incomplet ou mal formé. Réessayez.' },
