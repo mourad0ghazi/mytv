@@ -1,0 +1,7 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="Premiere.fr" tvg-logo="https://pics.example/premiere.png" group-title="Général",Première Chaîne
+https://streams.example/premiere.m3u8
+#EXTINF:-1 tvg-id="Deuxieme.fr" group-title="Info",Deuxième Chaîne
+https://streams.example/deuxieme.m3u8
+#EXTINF:-1 group-title="Musique",Troisième Chaîne
+https://streams.example/troisieme.m3u8

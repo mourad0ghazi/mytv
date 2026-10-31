@@ -1,0 +1,12 @@
+#EXTM3U
+#EXTINF:-1,Avant EXTGRP
+https://streams.example/avant.m3u8
+#EXTINF:-1,Après EXTGRP
+#EXTGRP:Documentaire
+https://streams.example/apres.m3u8
+#EXTINF:-1,Retour explicite
+#EXTGRP:Jeunesse
+#EXTINF:-1 group-title="Sport",Le groupe explicite gagne
+https://streams.example/explicite.m3u8
+#EXTINF:-1,Sans groupe
+https://streams.example/sans.m3u8

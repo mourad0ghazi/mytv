@@ -1,0 +1,7 @@
+﻿#EXTM3U
+#EXTINF:-1 tvg-id="Arabica.ma" group-title="عام",قناة المغرب الأولى
+https://streams.example/arabica.m3u8
+#EXTINF:-1 group-title="Cinéma",Canal 5, el canal
+https://streams.example/canal5.m3u8
+#EXTINF:-1 group-title="Enfants",Chaîne "Junior" (720p)
+https://streams.example/junior.m3u8

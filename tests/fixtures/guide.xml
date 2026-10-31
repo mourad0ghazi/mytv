@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tv SYSTEM "xmltv.dtd">
+<tv generator-info-name="Fixture">
+  <channel id="AlphaNews.fr"><display-name lang="fr">Alpha News</display-name><icon src="https://example.com/alpha.png"/></channel>
+  <channel id="BetaSport.ma"><display-name>Beta Sport 1</display-name></channel>
+  <programme start="20261025120000 +0000" stop="20261025130000 +0000" channel="AlphaNews.fr">
+    <title lang="fr">Le journal de midi</title>
+    <desc lang="fr">Toute l’actualité de la mi-journée &amp; les reportages.</desc>
+    <category lang="fr">Information</category>
+  </programme>
+  <programme start="20261025130000 +0000" stop="20261025140000 +0000" channel="AlphaNews.fr">
+    <title>Débat</title>
+  </programme>
+  <programme start="20261025123000 +0200" stop="20261025133000 +0200" channel="BetaSport.ma">
+    <title lang="fr">Football : direct</title>
+    <category>Sport</category>
+  </programme>
+  <programme start="pas-une-date" channel="BetaSport.ma"><title>Ignoré</title></programme>
+</tv>

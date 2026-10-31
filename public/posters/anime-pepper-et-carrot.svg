@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600" role="img" aria-label="Pepper et Carrot">
+  <rect width="400" height="600" fill="#0c0f16"/>
+  <rect x="20" y="20" width="360" height="560" rx="8" fill="#131823" stroke="#22293a" stroke-width="2"/>
+  <rect x="36" y="36" width="52" height="4" fill="#ff3d71"/>
+  <text x="36" y="68" fill="#97a0b3" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="14" font-weight="600" letter-spacing="2">ANIME · 2021</text>
+  <rect x="36" y="100" width="328" height="184" rx="6" fill="#0c0f16" stroke="#22293a" stroke-width="1.5"/>
+  <text x="200" y="218" text-anchor="middle" fill="#22293a" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="96" font-weight="800">PE</text>
+  <text x="36" y="336" fill="#f2f5fb" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="34" font-weight="700">Pepper et Carrot</text>
+  <text x="36" y="496" fill="#97a0b3" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="18" font-weight="500">Morevna Project</text>
+  <line x1="36" y1="520" x2="364" y2="520" stroke="#22293a" stroke-width="1"/>
+  <text x="36" y="550" fill="#97a0b3" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="14" font-weight="600">CC BY 4.0</text>
+</svg>

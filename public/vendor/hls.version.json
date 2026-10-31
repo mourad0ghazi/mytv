@@ -1,0 +1,10 @@
+{
+  "name": "hls.js",
+  "version": "1.5.17",
+  "file": "hls.min.js",
+  "source": "https://registry.npmjs.org/hls.js/-/hls.js-1.5.17.tgz",
+  "license": "Apache-2.0",
+  "sha256": "484054e8cd03d3f6d1781fb7f402bdc318d8a4c527f933a95c624e27cc9a9470",
+  "vendoredAt": "2026-10-25",
+  "note": "Version épinglée, servie localement : aucune requête vers un CDN, aucune dépendance d’exécution."
+}

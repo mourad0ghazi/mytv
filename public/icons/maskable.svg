@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="StreamTV">
+  <rect width="512" height="512" fill="#06070b"/>
+  <rect x="96" y="140" width="320" height="232" rx="46" fill="none" stroke="#ff3d71" stroke-width="28"/>
+  <path d="M224 74l32 32 32-32" fill="none" stroke="#ff3d71" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M232 214v84l72-42z" fill="#ff3d71"/>
+</svg>

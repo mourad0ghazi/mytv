@@ -1,0 +1,16 @@
+# Rien de ce qui n'est pas utile à l'exécution n'entre dans l'image.
+.git
+.github
+data/*.json
+data/*.json.*
+data/audit.log
+data/backups
+data/logs
+data/migrations
+tests
+docs
+node_modules
+*.log
+.tmp
+coverage
+dist-static

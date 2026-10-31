@@ -1,0 +1,9 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="Doublon.fr" group-title="Info",Doublon
+https://streams.example/doublon.m3u8
+#EXTINF:-1 tvg-id="Doublon.fr" group-title="Info",Doublon
+https://streams.example/doublon.m3u8?utm_source=x
+#EXTINF:-1 tvg-id="Doublon.fr" group-title="Info",DOUBLON HD
+https://streams.example/doublon-hd.m3u8
+#EXTINF:-1 tvg-id="Autre.fr" group-title="Info",Autre
+https://streams.example/autre.m3u8

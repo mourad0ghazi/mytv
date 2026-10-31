@@ -1,0 +1,83 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="20MinutesTV.fr@SD",20 Minutes TV (1080p)
+https://live-20minutestv.digiteka.com/1961167769/index.m3u8
+#EXTINF:-1 tvg-id="ADNTVPlus.fr@SD",ADN TV+ (720p)
+https://d3b73b34o7cvkq.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-gz2sgqzp076kf/adn.m3u8
+#EXTINF:-1 tvg-id="Africa24.fr@SD",Africa 24 (1080p)
+https://africa24.vedge.infomaniak.com/livecast/ik:africa24/manifest.m3u8
+#EXTINF:-1 tvg-id="Africa24English.fr@SD",Africa 24 English (1080p)
+https://edge20.vedge.infomaniak.com/livecast/ik:africa24english/manifest.m3u8
+#EXTINF:-1 tvg-id="Africa24Sport.fr@SD",Africa 24 Sport (1080p)
+https://africa24.vedge.infomaniak.com/livecast/ik:africa24sport/manifest.m3u8
+#EXTINF:-1 tvg-id="AfricanewsEnglish.fr@SD",Africanews English (720p)
+https://cdn-euronews.akamaized.net/live/eds/africanews-en/25049/index.m3u8
+#EXTINF:-1 tvg-id="AfricanewsFrench.fr@SD",Africanews French (720p)
+https://cdn-euronews.akamaized.net/live/eds/africanews-fr/25050/index.m3u8
+#EXTINF:-1 tvg-id="AlpedHuezTV.fr@SD",Alpe d’Huez TV (720p) [Not 24/7]
+https://edge13.vedge.infomaniak.com/livecast/ik:adhtv/manifest.m3u8
+#EXTINF:-1 tvg-id="AntenneReunion.fr@SD",Antenne Réunion (720p) [Not 24/7]
+https://live-antenne-reunion.zeop.tv/live/c3eds/antreunihd/hls_fta/antreunihd.m3u8?location=ZEOP01
+#EXTINF:-1 tvg-id="arte.fr@SD",Arte (720p) [Geo-blocked]
+https://artesimulcast.akamaized.net/hls/live/2031003/artelive_fr/index.m3u8
+#EXTINF:-1 tvg-id="BFM2.fr@HD",BFM2 (1080p)
+https://d1ib1gsg71oarf.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-scp7wda722jph/BFM2_FR.m3u8
+#EXTINF:-1 tvg-id="BFMBusiness.fr@SD",BFM Business (576p)
+https://live-cdn-stream-euw1.bfmb.bct.nextradiotv.com/master.m3u8
+#EXTINF:-1 tvg-id="BFMLyon.fr@SD",BFM Lyon (576p)
+https://live-cdn-bfmtvlyo-euw1.bfmtv.bct.nextradiotv.com/master.m3u8
+#EXTINF:-1 tvg-id="BFMTV.fr@SD",BFM TV (576p)
+https://live-cdn-stream-euw1.bfmtv.bct.nextradiotv.com/master.m3u8
+#EXTINF:-1 tvg-id="BrionnaisTV.fr@SD",Brionnais TV (720p)
+https://stream2.mandarine.media/brionnaistv/brionnaistv/playlist.m3u8
+#EXTINF:-1 tvg-id="CStar.fr@SD",C Star (477p)
+https://raw.githubusercontent.com/Paradise-91/ParaTV/refs/heads/main/streams/canalplus/cstar-dm.m3u8
+#EXTINF:-1 tvg-id="Caillou.fr@SD",Caillou
+https://do7nccdsswstc.cloudfront.net/v1/manifest/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-1aso0bc668saa/a5233c83-f772-4a81-959a-45ec7877ef61/5.m3u8
+#EXTINF:-1 tvg-id="CanalPlusCinemas.fr@SD",Canal+ Cinemas (720p)
+http://151.80.18.177:86/Canal+_cinema_HD/index.m3u8
+#EXTINF:-1 tvg-id="CannesLerinsTV.fr@SD",Cannes Lérins TV (1080p)
+https://vdo2.pro-fhi.net:3628/live/uppodsfqlive.m3u8
+#EXTINF:-1 tvg-id="CinePlusClassic.fr@SD",Cine+ Classic
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.3
+http://99.27.51.147/CineClassic/index.m3u8
+#EXTINF:-1 tvg-id="CinePlusFrisson.fr@SD",Cine+ Frisson (1080p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.3
+http://99.27.51.147:8080/CineFrisson/index.m3u8
+#EXTINF:-1 tvg-id="CNews.fr@SD",CNews (1080p) [Geo-blocked]
+https://raw.githubusercontent.com/LeBazarDeBryan/XTVZ_/main/Stream/Live/CNews.m3u8
+#EXTINF:-1 tvg-id="CNews.fr@SD",CNews (1080p)
+https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/canalplus/cnews-dm.m3u8
+#EXTINF:-1 tvg-id="CNEWSPRIME.fr@HD",CNEWS PRIME (1080p)
+https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/canalplus/cnews-prime-dm.m3u8
+#EXTINF:-1 tvg-id="DBMTV.fr@SD",DBM TV (1080p)
+https://dbmtv.vedge.infomaniak.com/livecast/dbmtv/playlist.m3u8
+#EXTINF:-1 tvg-id="DisneyJr.fr@SD",Disney Jr. (1080p)
+http://151.80.18.177:86/Disney_Junior_HD/index.m3u8
+#EXTINF:-1 tvg-id="DisneyJr.fr@SD",Disney Jr. (576p)
+http://41.205.64.66/DISNEY-JUNIOR/index.m3u8
+#EXTINF:-1 tvg-id="Equidia.fr@SD",Equidia (1080p)
+https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/equidia/live2.m3u8
+#EXTINF:-1 tvg-id="",Equidia Racing Mag (1080p)
+https://raw.githubusercontent.com/Paradise-91/ParaTV/main/streams/equidia/racingmag.m3u8
+#EXTINF:-1 tvg-id="EuronewsEnglish.fr@SD",Euronews English (720p)
+https://cdn-euronews.akamaized.net/live/eds/euronews-en/25002/index.m3u8
+#EXTINF:-1 tvg-id="EuronewsFrench.fr@SD",Euronews French (720p)
+https://cdn-euronews.akamaized.net/live/eds/euronews-fr/25026/index.m3u8
+#EXTINF:-1 tvg-id="EuronewsGerman.fr@SD",Euronews German (720p)
+https://cdn-euronews.akamaized.net/live/eds/euronews-de/25027/index.m3u8
+#EXTINF:-1 tvg-id="EuronewsGreek.fr@SD",Euronews Greek (720p)
+https://cdn-euronews.akamaized.net/live/eds/euronews-el/25068/index.m3u8
+#EXTINF:-1 tvg-id="EuronewsHungarian.fr@SD",Euronews Hungarian (720p)
+https://cdn-euronews.akamaized.net/live/eds/euronews-hu/25075/index.m3u8
+#EXTINF:-1 tvg-id="EuronewsItalian.fr@SD",Euronews Italian (720p)
+https://cdn-euronews.akamaized.net/live/eds/euronews-it/25085/index.m3u8
+#EXTINF:-1 tvg-id="EuronewsPortuguese.fr@SD",Euronews Portuguese (720p)
+https://cdn-euronews.akamaized.net/live/eds/euronews-pt/25040/index.m3u8
+#EXTINF:-1 tvg-id="EuronewsRussian.fr@SD",Euronews Russian (720p)
+https://cdn-euronews.akamaized.net/live/eds/euronews-ru/25071/index.m3u8
+#EXTINF:-1 tvg-id="EuronewsSpanish.fr@SD",Euronews Spanish (720p)
+https://cdn-euronews.akamaized.net/live/eds/euronews-es/25053/index.m3u8
+#EXTINF:-1 tvg-id="EvandisGospelTV.fr@SD",Evandis Gospel TV (1080p)
+https://evandis.streamakaci.tv/str_evandis_evandis/str_evandis_multi/playlist.m3u8
+#EXTINF:-1 tvg-id="FashionTVParisLOriginal.fr@SD",FashionTV Paris L'Original (1080p)
+https://edge-fast3.evrideo.tv/bfdbb576-83f7-11f0-9f89-0200170e3e04_1000028043_HLS/manifest.m3u8
