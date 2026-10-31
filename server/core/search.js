@@ -174,6 +174,9 @@ export function buildPredicate(filters = {}, settings = {}) {
   const language = (filters.language || '').toLowerCase();
   const quality = (filters.quality || '').toUpperCase();
   const health = (filters.health || '').toLowerCase();
+  // 3.20.0 : lisibilité mesurée. « lisibles » = testée et joignable ; « mesures » = testée, quel
+  // que soit le verdict ; une chaîne jamais testée n'entre dans aucun des deux.
+  const etat = (filters.etat || '').toLowerCase();
   const featured = filters.featured;
   const visibility = filters.visibility || 'public';
   const ids = filters.ids ? new Set(filters.ids) : null;
@@ -187,6 +190,8 @@ export function buildPredicate(filters = {}, settings = {}) {
     if (language && channel.language !== language) return false;
     if (quality && channel.quality !== quality) return false;
     if (health && channel.health?.status !== health) return false;
+    if (etat === 'lisibles' && !['up', 'flaky'].includes(channel.health?.status || 'unknown')) return false;
+    if (etat === 'mesures' && (!channel.health?.status || channel.health.status === 'unknown')) return false;
     if (featured === true && !channel.featured) return false;
     if (featured === false && channel.featured) return false;
     return true;

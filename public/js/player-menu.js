@@ -1,8 +1,8 @@
 // public/js/player-menu.js · menus du lecteur : options du pouce et rappel des raccourcis.
 // Extraits pour garder player.js sous la limite de 900 lignes et un seul rôle par fichier.
 
-import { COPY } from './copy.js?v=3.19.0';
-import { h, icon, modal } from './ui.js?v=3.19.0';
+import { COPY } from './copy.js?v=3.20.0';
+import { h, icon, modal } from './ui.js?v=3.20.0';
 
 /** Habillages proposés par le lecteur : les mêmes sur ordinateur et sur téléphone. */
 const HABILLAGES = [

@@ -70,6 +70,8 @@ export class Store {
     this.notices = [];
     this.loadedAt = null;
     this.error = null;
+    // Position de la sonde rotative : survit au redémarrage avec le reste de health.json.
+    this.probe = { cursor: 0, runs: 0, lastAt: null, tested: 0 };
     this.writeQueue = Promise.resolve();
     this.auditQueue = Promise.resolve();
   }
@@ -352,6 +354,13 @@ export class Store {
   async loadHealthSnapshot() {
     const { data, corrupt } = await this.readJson(this.file('health'), null);
     if (corrupt || !data || typeof data !== 'object') return;
+    const probe = data.probe && typeof data.probe === 'object' ? data.probe : {};
+    this.probe = {
+      cursor: Math.max(0, Number(probe.cursor) || 0),
+      runs: Math.max(0, Number(probe.runs) || 0),
+      tested: Math.max(0, Number(probe.tested) || 0),
+      lastAt: typeof probe.lastAt === 'string' ? probe.lastAt : null,
+    };
     const entries = data.entries && typeof data.entries === 'object' ? data.entries : {};
     const byId = new Map(Object.entries(entries));
     for (const channel of this.channels) {
@@ -498,6 +507,7 @@ export class Store {
         updatedAt: new Date().toISOString(),
         counts: this.healthCounts(),
         entries,
+        probe: this.probe,
       });
       this.healthUpdatedAt = new Date().toISOString();
     });

@@ -2,9 +2,9 @@
 // Une seule forme d'affiche, un seul mot de type, une licence toujours visible.
 // Aucun contrôle ne se superpose à l'affiche : les commandes vivent sous l'image.
 
-import { withBase } from './base.js?v=3.19.0';
-import { h, icon } from './ui.js?v=3.19.0';
-import { prefs } from './prefs.js?v=3.19.0';
+import { withBase } from './base.js?v=3.20.0';
+import { h, icon } from './ui.js?v=3.20.0';
+import { prefs } from './prefs.js?v=3.20.0';
 
 /** « 1 h 23 min », « 42 min », « 3 min ». Jamais de seconde seule pour une durée de film. */
 export function fmtDuration(totalSeconds) {

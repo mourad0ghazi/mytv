@@ -1,11 +1,11 @@
 // public/js/views/admin/health.js · onglet Santé : sonde bornée, états up/flaky/down/unknown.
 // Une sonde ne bloque jamais la console : elle est plafonnée en durée et en nombre.
 
-import { Admin } from '../../api.js?v=3.19.0';
-import { h, icon, modal, toast, spinner, emptyState, fmtNumber, healthLabel } from '../../ui.js?v=3.19.0';
-import { statCard } from '../../components.js?v=3.19.0';
-import { confirmModal, apiGuard } from './common.js?v=3.19.0';
-import { channelModal } from './catalogue.js?v=3.19.0';
+import { Admin } from '../../api.js?v=3.20.0';
+import { h, icon, modal, toast, spinner, emptyState, fmtNumber, healthLabel } from '../../ui.js?v=3.20.0';
+import { statCard } from '../../components.js?v=3.20.0';
+import { confirmModal, apiGuard } from './common.js?v=3.20.0';
+import { channelModal } from './catalogue.js?v=3.20.0';
 
 /* ------------------------------------------------------------------ F-22 : apprentissage */
 
@@ -81,6 +81,37 @@ async function renderHealth(host, ctx, state, { refreshStats, stats }) {
     [20, 40, 80, 100].map((value) => h('option', { value: String(value), selected: value === 40 }, `${value} chaînes`)));
   const probeBtn = h('button', { class: 'btn btn-primary btn-sm', type: 'button' },
     icon('heart', 14), 'Lancer une sonde');
+  // 3.20.0 : la ronde avance dans tout le catalogue, un lot par nuit, sans repasser sur les
+  // mêmes chaînes. Le bouton permet de rattraper une nuit manquée sans attendre 3 heures.
+  const rondeBtn = h('button', { class: 'btn btn-ghost btn-sm', type: 'button' },
+    icon('retry', 14), `Sonder le lot suivant (${fmtNumber(current.health.nightlyLimit || 150)})`);
+  const rondeHost = h('div', {});
+  const mesure = current.health || {};
+  const dernier = current.probe?.lastAt
+    ? `Dernière ronde : ${new Date(current.probe.lastAt).toLocaleString('fr-FR')}`
+    : 'Aucune ronde nocturne enregistrée pour l’instant.';
+
+  rondeBtn.addEventListener('click', async () => {
+    rondeBtn.disabled = true;
+    rondeBtn.replaceChildren(icon('clock', 14), 'Ronde en cours…');
+    rondeHost.replaceChildren(spinner('Mesure réelle du lot suivant, 8 flux en parallèle…'));
+    try {
+      const result = await Admin.probeRonde({ limite: mesure.nightlyLimit || 150 });
+      state.probe = result;
+      rondeHost.replaceChildren(h('div', { class: 'banner', dataset: { tone: 'info' } },
+        icon('check', 16), h('p', { text: result.message })));
+      toast(result.message, { tone: 'success', duration: 8000 });
+      await refreshStats();
+      renderHealth(host, ctx, state, { refreshStats, stats });
+    } catch (error) {
+      if (apiGuard(ctx, error)) return;
+      rondeHost.replaceChildren(h('div', { class: 'banner', dataset: { tone: 'danger' } },
+        icon('alert', 16), h('p', { text: error.message })));
+    } finally {
+      rondeBtn.disabled = false;
+      rondeBtn.replaceChildren(icon('retry', 14), 'Sonder le lot suivant');
+    }
+  });
 
   probeBtn.addEventListener('click', () => {
     confirmModal({
@@ -121,14 +152,25 @@ async function renderHealth(host, ctx, state, { refreshStats, stats }) {
       statCard('Disponibles', fmtNumber(current.health.up), 'sonde réussie', 'ok'),
       statCard('Instables', fmtNumber(current.health.flaky), 'lenteur, CORS ou 5xx', 'warn'),
       statCard('Indisponibles', fmtNumber(current.health.down), '3 échecs consécutifs', 'danger'),
-      statCard('Non testées', fmtNumber(current.health.unknown), 'état initial obligatoire')),
+      statCard('Non testées', fmtNumber(current.health.unknown),
+        `${fmtNumber(mesure.nights || 0)} nuit${(mesure.nights || 0) > 1 ? 's' : ''} pour finir le tour`,
+        (mesure.remaining || 0) > 0 ? 'warn' : 'ok'),
+      statCard('Lisibles au navigateur', fmtNumber(mesure.readable || 0),
+        `${fmtNumber(mesure.corsMissing || 0)} sans CORS`, (mesure.readable || 0) ? 'ok' : '')),
     alertPanel(alerts, () => renderHealth(host, ctx, state, { refreshStats, stats })),
     h('section', { class: 'panel', style: { marginTop: '16px' } },
       h('p', { class: 'eyebrow' }, 'Mesure'),
       h('h2', { style: { fontSize: '20px', marginBottom: '4px' } }, 'Sonde de disponibilité'),
-      h('p', { class: 'muted', style: { marginBottom: '12px' } }, 'Concurrence 8, délai 6 secondes, plafond de 300 sondes par minute.'),
-      h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } }, limit, probeBtn),
-      probeHost),
+      h('p', { class: 'muted', style: { marginBottom: '12px' } },
+        'Concurrence 8, délai 6 secondes, plafond de 300 sondes par minute. '
+        + `La ronde nocturne teste ${fmtNumber(mesure.nightlyLimit || 150)} chaînes par nuit, `
+        + 'dans l’ordre du catalogue, et retient sa position.'),
+      h('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } }, limit, probeBtn, rondeBtn),
+      h('p', { class: 'muted', style: { margin: '10px 0 0', fontSize: '13px' } },
+        `${dernier} · ${fmtNumber(mesure.measured || 0)} chaînes mesurées sur ${fmtNumber(mesure.total || 0)}`
+        + `${mesure.lastCheckedAt ? ` · dernier relevé le ${new Date(mesure.lastCheckedAt).toLocaleString('fr-FR')}` : ''}.`),
+      probeHost,
+      rondeHost),
     h('section', { class: 'panel', style: { marginTop: '16px' } },
       h('p', { class: 'eyebrow' }, 'Cerveau du catalogue'),
       h('h2', { style: { fontSize: '20px', marginBottom: '12px' } }, 'Moteur de catégorisation'),

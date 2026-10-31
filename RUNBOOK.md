@@ -532,3 +532,56 @@ fly deploy
 ```
 
 Le volume `/data` est conservé. Détail : `docs/DEPLOIEMENT-FLY.md`.
+
+## 11. Sonde rotative (3.20.0)
+
+La mesure du catalogue avance par lots : 150 chaînes par nuit, dans l'ordre du catalogue, avec
+un curseur conservé dans `data/health.json`. Un tour complet demande 10 nuits pour 1 475
+chaînes ; un redémarrage reprend exactement où la ronde s'était arrêtée.
+
+### Voir où en est la mesure
+
+```bash
+npm run rapport:lisibilite            # total, mesurées, restantes, lisibles, sans CORS, nuits
+npm run rapport:lisibilite -- --json  # la même chose en JSON, pour un moniteur
+```
+
+Console, onglet Santé : quatre cartes (joignables, instables, hors service, non testées), la
+lisibilité navigateur, le nombre de nuits restantes et la date de la dernière ronde.
+
+### Rejouer une ronde tout de suite
+
+- Console, onglet Santé, bouton « Sonder le lot suivant » : 150 chaînes du catalogue, curseur
+  avancé, tout est journalisé (`probe.ronde`).
+- Ligne de commande, sans passer par l'interface :
+  `node scripts/probe-chaines.js --tout --commit` (tout le catalogue, plus long).
+- Une seule chaîne : `node scripts/probe-chaines.js --id <identifiant>`.
+
+### Lire un verdict
+
+| État | Cause typique | Que faire |
+|---|---|---|
+| `up` | `ok` | rien, la chaîne est lisible |
+| `flaky` | `slow`, `server` | surveiller ; deux réponses correctes la repassent `up` |
+| `down` | `dead`, `unreachable`, `geo` | vérifier l'adresse dans l'onglet Chaînes |
+| `down` | `cors` | le flux existe mais refuse le navigateur : voir « Relais » ci-dessous |
+| `unknown` | jamais testée | attendre la ronde, ou lancer le lot suivant |
+
+Trois échecs consécutifs bloquent la chaîne ; une réponse correcte la débloque. Une mesure ne
+supprime jamais une chaîne : elle la signale.
+
+### Une ronde ne mesure rien
+
+- Le serveur qui sonde n'a pas accès aux diffuseurs (réseau filtré, pare-feu, proxy) : toutes
+  les chaînes ressortent `down` avec la cause `unreachable`. Vérifier avec
+  `curl -I <adresse du flux>` depuis la même machine. Sur Fly.io, `fly ssh console` puis la même
+  commande.
+- Le lot est vide alors que « restantes » ne l'est pas : le curseur a dépassé le catalogue
+  après un import ; `POST /api/admin/health/resume` remet la photographie à jour, ou
+  redémarrer le serveur relit `data/health.json`.
+
+### CORS : le flux marche chez le serveur, pas dans le navigateur
+
+Un flux `up` mais avec la cause `cors` est lisible par `curl` et refusé par le lecteur du
+navigateur. Le relais HLS sur liste blanche licenciée est prévu au lot suivant ; d'ici là ces
+chaînes restent hors du filtre « Flux vérifiés ».

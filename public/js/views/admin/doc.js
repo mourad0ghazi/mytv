@@ -4,9 +4,9 @@
 // Aucune balise n'est construite à partir d'une chaîne : chaque nœud est créé par h(),
 // et le texte passe par textContent.
 
-import { Admin } from '../../api.js?v=3.19.0';
-import { anchorOf } from '../../doc-anchor.js?v=3.19.0';
-import { h, icon, modal } from '../../ui.js?v=3.19.0';
+import { Admin } from '../../api.js?v=3.20.0';
+import { anchorOf } from '../../doc-anchor.js?v=3.20.0';
+import { h, icon, modal } from '../../ui.js?v=3.20.0';
 
 /** Découpe un fragment Markdown en nœuds : texte, `code`, **gras**, [lien](adresse). */
 export function inlineNodes(text) {

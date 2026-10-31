@@ -3,9 +3,9 @@
 // l'onglet déconnecte le visiteur sans jamais toucher à la console. Aucune donnée secrète
 // n'est conservée : le serveur ne renvoie ni empreinte ni sel.
 
-import { withBase } from './base.js?v=3.19.0';
-import { ApiError } from './api.js?v=3.19.0';
-import { prefs } from './prefs.js?v=3.19.0';
+import { withBase } from './base.js?v=3.20.0';
+import { ApiError } from './api.js?v=3.20.0';
+import { prefs } from './prefs.js?v=3.20.0';
 
 const KEY = 'streamtv.compte.token';
 const NOM = 'streamtv.compte.nom';

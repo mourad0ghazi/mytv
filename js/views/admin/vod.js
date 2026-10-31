@@ -2,12 +2,12 @@
 // Quatre constats chiffrés, une liste par source, et les derniers ajouts. Chaque fiche
 // peut être publiée, retirée ou corrigée ; une fiche sans licence reste impossible à publier.
 
-import { Admin } from '../../api.js?v=3.19.0';
-import { COPY } from '../../copy.js?v=3.19.0';
-import { h, icon, fmtNumber, fmtRelative, spinner, emptyState, toast } from '../../ui.js?v=3.19.0';
-import { statCard } from '../../components.js?v=3.19.0';
-import { apiGuard } from './common.js?v=3.19.0';
-import { docLink } from './doc.js?v=3.19.0';
+import { Admin } from '../../api.js?v=3.20.0';
+import { COPY } from '../../copy.js?v=3.20.0';
+import { h, icon, fmtNumber, fmtRelative, spinner, emptyState, toast } from '../../ui.js?v=3.20.0';
+import { statCard } from '../../components.js?v=3.20.0';
+import { apiGuard } from './common.js?v=3.20.0';
+import { docLink } from './doc.js?v=3.20.0';
 
 const TEXTES = {
   anime: {

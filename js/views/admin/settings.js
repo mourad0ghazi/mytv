@@ -1,9 +1,9 @@
 // public/js/views/admin/settings.js · onglet Réglages : toutes les valeurs du schéma validées avant écriture.
 // Un refus n'applique jamais partiellement les autres champs.
 
-import { Admin } from '../../api.js?v=3.19.0';
-import { h, icon, modal, toast } from '../../ui.js?v=3.19.0';
-import { field, confirmModal, apiGuard } from './common.js?v=3.19.0';
+import { Admin } from '../../api.js?v=3.20.0';
+import { h, icon, modal, toast } from '../../ui.js?v=3.20.0';
+import { field, confirmModal, apiGuard } from './common.js?v=3.20.0';
 
 const FIELD_GROUPS = [
   ['Identité', ['brand', 'tagline', 'accent', 'logoUrl', 'pageTitleSuffix', 'footerNote']],

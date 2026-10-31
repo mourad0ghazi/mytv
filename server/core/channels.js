@@ -37,7 +37,7 @@ export function channelId(urlNormalized) {
 }
 
 export function defaultHealth() {
-  return { status: 'unknown', checkedAt: null, latencyMs: null, cors: null, httpStatus: null, consecutiveFailures: 0 };
+  return { status: 'unknown', checkedAt: null, latencyMs: null, cors: null, httpStatus: null, consecutiveFailures: 0, reason: '' };
 }
 
 export function categoryLabel(categoryId) {
@@ -138,6 +138,9 @@ export function projectCard(channel) {
     language: channel.language,
     hue: channel.hue,
     health: channel.health?.status || 'unknown',
+    // La date de mesure et sa cause : le visiteur sait ce qui a été mesuré, et quand.
+    healthCheckedAt: channel.health?.checkedAt || '',
+    healthReason: channel.health?.reason || '',
     blocked: Boolean(channel.blocked),
     blockedReason: channel.blockedReason || '',
     featured: Boolean(channel.featured),
@@ -166,6 +169,10 @@ export function projectDetail(channel, settings, siteProtocol = 'https:') {
       cors: channel.health.cors,
       httpStatus: channel.health.httpStatus,
       consecutiveFailures: channel.health.consecutiveFailures,
+      reason: channel.health.reason || '',
+      // Lisible dans un navigateur : réponse correcte et en-tête CORS accepté.
+      browserPlayable: (channel.health.status === 'up' || channel.health.status === 'flaky')
+        && channel.health.cors !== false,
     },
     variants: channel.variants.map((variant) => ({
       id: variant.id,

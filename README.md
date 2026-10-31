@@ -95,6 +95,7 @@ obtenir des faits, mesurez :
 npm run sonde                        # 500 chaînes jamais testées, aperçu
 npm run sonde -- --tout --commit     # tout le catalogue, enregistré
 npm run sonde -- --id db4e9e37edfa   # une seule chaîne
+npm run rapport:lisibilite           # combien sont mesurées, lisibles, restantes (sans réseau)
 ```
 
 La sonde demande un octet par flux (`Range: bytes=0-0`), huit en parallèle, avec un délai de
@@ -214,7 +215,7 @@ public/
   sw.js, offline.html    PWA : coquille en cache, API jamais mise en cache
   vendor/hls.min.js      hls.js 1.5.17 épinglé, Apache-2.0, servi localement
 scripts/                 ingest.js, measure-tagger.js, backup.js, verify.js
-tests/                   407 tests node:test (core, api, vidéo à la demande, sources, documentation, sécurité, client, messages, epg, alertes, apprentissage, migration, conformité, design)
+tests/                   421 tests node:test (core, api, vidéo à la demande, sources, documentation, sécurité, client, messages, epg, alertes, apprentissage, migration, conformité, design, sonde)
 docs/PV-RECETTE.md       procès-verbal de recette
 ```
 
@@ -225,7 +226,7 @@ fichiers relatifs : pas de bundler, pas de CDN.
 
 ---
 
-## 4. API HTTP (119 routes déclarées)
+## 4. API HTTP (121 routes déclarées)
 
 Enveloppe d’erreur unique : `{ "error": "phrase française", "code": "ERR-xx", "requestId": "…", "field": "…" }`.
 L’ordre de contrôle est fixe : méthode (405) → taille (413) → type (415) → authentification
@@ -237,7 +238,7 @@ L’ordre de contrôle est fixe : méthode (405) → taille (413) → type (415)
 |---|---|
 | `GET /healthz` | état du service (200) ou dégradé (503) |
 | `GET /api/config` | marque, accent, catégories, compteurs, vedette, bandeaux |
-| `GET /api/channels` | liste paginée : `page`, `pageSize` (1–60), `sort`, `category`, `country`, `language`, `quality`, `health`, `featured` |
+| `GET /api/channels` | liste paginée : `page`, `pageSize` (1–60), `sort`, `category`, `country`, `language`, `quality`, `health`, `etat` (`lisibles` ou `mesures`), `featured` |
 | `GET /api/channels/:id` | fiche complète (36 champs utiles + `playable`) |
 | `GET /api/channels/search?q=` | recherche dédiée, même contrat que la liste |
 | `GET /api/channels?ids=a,b,c` | sélection explicite d'identifiants (rails, proches) |
@@ -666,7 +667,7 @@ est signalé comme **avertissement** (attendu en démonstration, à corriger ava
 ## 7. Tests
 
 ```bash
-npm test            # 80 suites, 407 tests, aucune dépendance
+npm test            # 85 suites, 421 tests, aucune dépendance
 ```
 
 | Suite | Ce qu’elle prouve |
@@ -685,6 +686,7 @@ npm test            # 80 suites, 407 tests, aucune dépendance
 | `tests/vod-sources.test.js` | routes anime, films, sources et recherche ; refus sans licence ; arbitrage ; seuil de retrait |
 | `tests/documentation.test.js` | la console et `docs/ADMINISTRATION.md` disent la même chose : onglets, réglages, codes d’audit |
 | `tests/statique.test.js` | copie publiée : worker, attente finie, `withBase` sous `/mytv/`, affiches livrées, 13 contrôles d’adresse |
+| `tests/sonde.test.js` | sonde rotative : lots successifs sans doublon, curseur relu après redémarrage, cause de chaque mesure, ronde par route, filtre public `etat`, rapport de lisibilité |
 | `tests/comptes.test.js` | comptes visiteurs : inscription confirmée par un serveur SMTP local, code faux puis juste, jeton refusé sur la console, favoris et reprises, fusion, suspension, suppression, inscriptions fermées, expiration et plafonds |
 
 Les tests démarrent chacun leur propre serveur sur un dossier temporaire : le catalogue réel n’est

@@ -247,9 +247,26 @@ Sonde bornée des flux, sans jamais bloquer la console.
 
 - Quatre états : `up` (joignable), `flaky` (instable), `down` (hors service), `unknown` (non
   testée).
-- La sonde est plafonnée en durée et en nombre de flux testés par passe.
+- La sonde est plafonnée en durée et en nombre de flux testés par passe : 8 flux en parallèle,
+  6 secondes par flux, 300 sondes par minute.
+- **Ronde rotative (3.20.0)** : la tâche nocturne teste 150 chaînes par nuit, dans l'ordre du
+  catalogue, et retient sa position dans `data/health.json` (`probe.cursor`). Un redémarrage
+  reprend au même endroit ; un tour complet demandait auparavant 37 nuits sur les 40 mêmes
+  chaînes, il en demande désormais 10 sur tout le catalogue. Le bouton « Sonder le lot
+  suivant » rejoue une ronde sans attendre 3 h du matin.
+- La mesure conserve sa **cause** (`ok`, `geo`, `dead`, `cors`, `slow`, `server`, `unreachable`).
+  La fiche publique affiche la date de mesure, la cause et la lisibilité navigateur.
+- Le filtre public `etat=lisibles` ne garde que les chaînes mesurées joignables ; le bouton
+  « Flux vérifiés » de l'accueil s'appuie dessus. `etat=mesures` garde toutes les chaînes
+  testées, quel que soit le verdict.
+- Trois échecs consécutifs bloquent une chaîne (`dead` ou `geo`) ; une réponse correcte la
+  débloque. Aucun flux n'est supprimé par une sonde : un flux hors service est signalé, pas
+  retiré.
 - Les résultats alimentent la pastille publique quand `showHealthBadge` est actif.
-- Aucun flux n'est supprimé par une sonde : un flux hors service est signalé, pas retiré.
+
+Routes : `POST /api/admin/health/probe` (file des chaînes jamais testées),
+`POST /api/admin/health/ronde` (lot suivant du catalogue, `ids` pour cibler 100 chaînes au
+plus), `GET /api/admin/health/resume` (photographie de la mesure, sans sonder).
 
 Permissions : `diagnostic`, `catalogue.write` pour masquer une chaîne depuis la fiche.
 

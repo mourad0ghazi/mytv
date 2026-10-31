@@ -4,6 +4,7 @@
 import { CATEGORIES, LIMITS, SPEC_VERSION, VERSION } from '../core/constants.js';
 import { AppError, ERRORS } from '../core/errors.js';
 import { isPublic, projectCard, projectDetail } from '../core/channels.js';
+import { probeStats } from '../core/probe-plan.js';
 import { buildPredicate, paginate, sortChannels } from '../core/search.js';
 import { normalizeQuery, normalizeKey } from '../core/text.js';
 import { checkMemberPassword, findMember, publicMember, ROLES } from '../core/team.js';
@@ -85,7 +86,7 @@ function listResponse(app, list, { page, pageSize, sort, query }) {
       catalogTotal: app.store.channels.length,
       visibleTotal: all.length,
       hidden: app.store.channels.length - all.length,
-      filters: { category: '', country: '', language: '', quality: '', health: '' },
+      filters: { category: '', country: '', language: '', quality: '', health: '', etat: '' },
     },
   };
 }
@@ -259,7 +260,7 @@ export function registerPublicRoutes(router, app) {
           adultHidden,
           target: settings.targetTable || app.store.channels.length,
         },
-        health: app.store.healthCounts(),
+        health: { ...app.store.healthCounts(), ...probeStats(app.store.channels), lastProbeAt: app.store.probe.lastAt },
         hero: resolveHero(app, visible),
         featured,
         defaultPassword: app.auth.isDefaultPasswordActive(),
@@ -289,6 +290,7 @@ export function registerPublicRoutes(router, app) {
       language: queryString(query, 'language', { max: 8 }).toLowerCase(),
       quality: queryString(query, 'quality', { max: 4 }).toUpperCase(),
       health: queryString(query, 'health', { max: 8 }).toLowerCase(),
+      etat: queryString(query, 'etat', { max: 10 }).toLowerCase(),
       featured: query.featured === 'true' ? true : query.featured === 'false' ? false : undefined,
       visibility: 'public',
     };

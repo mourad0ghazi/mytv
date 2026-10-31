@@ -21,7 +21,7 @@ export class ProbeLimiter {
   }
 }
 
-function classifyProbe({ ok, httpStatus, latencyMs, cors, error }) {
+export function classifyProbe({ ok, httpStatus, latencyMs, cors, error }) {
   if (error) return { status: 'down', reason: 'unreachable' };
   if (!ok) {
     if (httpStatus === 403 || httpStatus === 451) return { status: 'down', reason: 'geo' };
@@ -102,6 +102,8 @@ export async function probeChannels(channels, {
         cors: raw.cors,
         httpStatus: raw.httpStatus,
         consecutiveFailures,
+        // La cause est conservée : « geo », « dead », « cors » ou « ok » expliquent la mesure.
+        reason: verdict.reason,
       };
       channel.updatedAt = now;
       // La mesure prime sur l'étiquette : une chaîne annoncée « géo-bloquée » par sa source

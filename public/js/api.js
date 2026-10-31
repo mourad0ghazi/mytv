@@ -1,6 +1,6 @@
 // public/js/api.js · client HTTP unique. Toute erreur devient une phrase française.
 
-import { withBase } from './base.js?v=3.19.0';
+import { withBase } from './base.js?v=3.20.0';
 
 const TOKEN_KEY = 'streamtv.token';
 
@@ -179,6 +179,9 @@ export const Admin = {
   saveRules: (rules) => api('/api/admin/rules', { method: 'PATCH', body: { rules } }),
   stats: () => api('/api/admin/stats'),
   probe: (payload) => api('/api/admin/health/probe', { method: 'POST', body: payload, timeout: 120_000 }),
+  // 3.20.0 : ronde rotative sur tout le catalogue, curseur conservé côté serveur.
+  probeRonde: (payload = {}) => api('/api/admin/health/ronde', { method: 'POST', body: payload, timeout: 180_000 }),
+  probeResume: () => api('/api/admin/health/resume'),
   backup: () => api('/api/admin/backup', { method: 'POST', body: {} }),
   restoreBackup: (file) => api('/api/admin/restore', { method: 'POST', body: { file, confirm: 'RESTAURER' }, timeout: 60_000 }),
   password: (current, next, confirm) => api('/api/admin/password', { method: 'POST', body: { current, next, confirm } }),

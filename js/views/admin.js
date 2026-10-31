@@ -1,28 +1,28 @@
 // public/js/views/admin.js · écran 7 : console d'administration, sept onglets.
 // La coquille ne rend que les compteurs et les onglets ; chaque onglet vit dans views/admin/.
 
-import { Admin, auth } from '../api.js?v=3.19.0';
-import { COPY } from '../copy.js?v=3.19.0';
-import { h, icon, fmtNumber, spinner, emptyState } from '../ui.js?v=3.19.0';
-import { statCard } from '../components.js?v=3.19.0';
+import { Admin, auth } from '../api.js?v=3.20.0';
+import { COPY } from '../copy.js?v=3.20.0';
+import { h, icon, fmtNumber, spinner, emptyState } from '../ui.js?v=3.20.0';
+import { statCard } from '../components.js?v=3.20.0';
 
-import { renderCatalogue } from './admin/catalogue.js?v=3.19.0';
-import { renderImport } from './admin/import.js?v=3.19.0';
-import { renderSettings } from './admin/settings.js?v=3.19.0';
-import { renderHealth } from './admin/health.js?v=3.19.0';
-import { renderBackups } from './admin/backups.js?v=3.19.0';
-import { renderLiens } from './admin/liens.js?v=3.19.0';
-import { renderSignalements } from './admin/signalements.js?v=3.19.0';
-import { renderPilotage } from './admin/pilotage.js?v=3.19.0';
-import { renderEquipe } from './admin/equipe.js?v=3.19.0';
-import { renderMembres } from './admin/membres.js?v=3.19.0';
-import { renderAppareils } from './admin/appareils.js?v=3.19.0';
-import { renderAcces } from './admin/acces.js?v=3.19.0';
-import { renderPremierLancement } from './admin/premier-lancement.js?v=3.19.0';
-import { renderSources } from './admin/sources.js?v=3.19.0';
-import { renderVodAdmin } from './admin/vod.js?v=3.19.0';
-import { anchorOf } from '../doc-anchor.js?v=3.19.0';
-import { openDocumentation } from './admin/doc.js?v=3.19.0';
+import { renderCatalogue } from './admin/catalogue.js?v=3.20.0';
+import { renderImport } from './admin/import.js?v=3.20.0';
+import { renderSettings } from './admin/settings.js?v=3.20.0';
+import { renderHealth } from './admin/health.js?v=3.20.0';
+import { renderBackups } from './admin/backups.js?v=3.20.0';
+import { renderLiens } from './admin/liens.js?v=3.20.0';
+import { renderSignalements } from './admin/signalements.js?v=3.20.0';
+import { renderPilotage } from './admin/pilotage.js?v=3.20.0';
+import { renderEquipe } from './admin/equipe.js?v=3.20.0';
+import { renderMembres } from './admin/membres.js?v=3.20.0';
+import { renderAppareils } from './admin/appareils.js?v=3.20.0';
+import { renderAcces } from './admin/acces.js?v=3.20.0';
+import { renderPremierLancement } from './admin/premier-lancement.js?v=3.20.0';
+import { renderSources } from './admin/sources.js?v=3.20.0';
+import { renderVodAdmin } from './admin/vod.js?v=3.20.0';
+import { anchorOf } from '../doc-anchor.js?v=3.20.0';
+import { openDocumentation } from './admin/doc.js?v=3.20.0';
 
 /**
  * Onglets de la console, dans l'ordre d'usage. Chaque onglet documenté existe ici, et

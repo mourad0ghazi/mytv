@@ -103,7 +103,7 @@ Côté console, permission `team` : `GET /api/admin/membres`, `GET /api/admin/me
 ## Vérifier
 
 ```bash
-npm test                          # 407 tests, dont 11 sur les comptes
+npm test                          # 421 tests, dont 11 sur les comptes
 node --test tests/comptes.test.js # inscription, codes, sessions, modération
 ```
 

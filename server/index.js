@@ -12,7 +12,9 @@ import { CATEGORY_BY_ID, LIMITS, VERSION } from './core/constants.js';
 import { Store } from './core/store.js';
 import { SearchIndex } from './core/search.js';
 import { Ingest } from './core/ingest.js';
-import { ProbeLimiter, probeChannels } from './core/health.js';
+import { ProbeLimiter } from './core/health.js';
+import { PROBE_NIGHTLY_LIMIT } from './core/probe-plan.js';
+import { lancerRonde } from './core/probe-runner.js';
 import { EpgCache } from './core/epg.js';
 import { computeAlerts } from './core/alerts.js';
 import { can } from './core/team.js';
@@ -240,16 +242,14 @@ export async function createApp() {
     const backup = await store.backup('auto');
     logger.info(`sauvegarde quotidienne : ${backup.file}`);
     await rotateLogs(DATA_DIR);
-    const pool = store.channels.filter((channel) => !channel.deleted && channel.url).slice(0, 40);
-    if (pool.length && app.probeLimiter.take(pool.length).allowed) {
-      try {
-        const result = await probeChannels(pool, { concurrency: LIMITS.probeConcurrency, timeoutMs: LIMITS.probeTimeoutMs });
-        await store.saveChannels('health.cron');
-        await store.saveHealthSnapshot();
-        logger.info(`sonde nocturne : ${result.up} ok, ${result.flaky} instables, ${result.down} hs`);
-      } catch (error) {
-        logger.warn(`sonde nocturne impossible: ${error.message}`);
-      }
+    // Ronde nocturne : le lot suivant du catalogue, pas toujours les mêmes quarante chaînes.
+    // Le curseur est écrit dans health.json : un redémarrage reprend où la mesure s'était arrêtée.
+    try {
+      const result = await lancerRonde(app, { limit: PROBE_NIGHTLY_LIMIT, actor: 'scheduler' });
+      logger.info(`ronde nocturne : ${result.up} ok, ${result.flaky} instables, ${result.down} hs, `
+        + `${result.probe.remaining} restantes (${result.probe.nights} nuit(s) pour finir le tour)`);
+    } catch (error) {
+      logger.warn(`ronde nocturne impossible: ${error.message}`);
     }
   }, 3);
 

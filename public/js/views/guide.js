@@ -1,13 +1,13 @@
 // public/js/views/guide.js · écran 2 : guide de zapping, liste dense + filtres par catégorie.
 // ≤ 60 lignes par page, jamais plus de 120 nœuds de chaîne dans le DOM.
 
-import { api } from '../api.js?v=3.19.0';
-import { COPY } from '../copy.js?v=3.19.0';
+import { api } from '../api.js?v=3.20.0';
+import { COPY } from '../copy.js?v=3.20.0';
 import {
   h, icon, fmtNumber, skeletonGrid, emptyState, logoNode, healthLabel, toast, debounce,
-} from '../ui.js?v=3.19.0';
-import { getPlayer } from '../player.js?v=3.19.0';
-import { prefs } from '../prefs.js?v=3.19.0';
+} from '../ui.js?v=3.20.0';
+import { getPlayer } from '../player.js?v=3.20.0';
+import { prefs } from '../prefs.js?v=3.20.0';
 
 const ROWS_PER_PAGE = 60;
 

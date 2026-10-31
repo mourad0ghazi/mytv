@@ -3,6 +3,62 @@
 Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 Versionnement sémantique. Toutes les dates sont au format `AAAA-MM-JJ`.
 
+## [3.20.0] - 2026-10-31
+
+Une chaîne n'est « qui ne marche pas » que si on l'a mesuré. Le catalogue comptait 1 475
+chaînes et **zéro mesure** : la sonde nocturne ne testait que les 40 premières, toutes les
+nuits, et 97 % du catalogue restait à l'état `unknown`. La sonde avance désormais par lots
+rotatifs, la mesure garde sa cause, et le visiteur peut demander les seuls flux vérifiés.
+
+### Ajouté
+
+- **`server/core/probe-plan.js`** : plan de ronde. `nextRotatingBatch()` rend le lot suivant
+  dans l'ordre du catalogue à partir d'un curseur, sans doublon sur un tour, et revient à zéro
+  au bout ; `probeStats()` rend la photographie (mesurées, restantes, lisibles au navigateur,
+  sans en-tête CORS, nombre de nuits pour finir le tour).
+- **`server/core/probe-runner.js`** : chemin unique de mesure pour la console et la tâche
+  nocturne (plafond 300 sondes/minute, écriture atomique, journal d'audit, avancée du curseur).
+- **Curseur persistant** dans `data/health.json` (`probe.cursor`, `runs`, `tested`, `lastAt`) :
+  un redémarrage reprend la ronde au même endroit. Vérifié en direct : `cursor: 2` relu après
+  arrêt et relance du serveur.
+- **Ronde nocturne de 150 chaînes** au lieu de 40 : un tour complet passe de 37 nuits à 10.
+- **`POST /api/admin/health/ronde`** (lot suivant, `ids` pour cibler 100 chaînes au plus) et
+  **`GET /api/admin/health/resume`** (photographie sans sonder). Bouton « Sonder le lot
+  suivant » dans l'onglet Santé, avec la date de la dernière ronde.
+- **Cause de la mesure conservée** : `ok`, `geo`, `dead`, `cors`, `slow`, `server`,
+  `unreachable`. Exposée dans `projectCard.healthReason`, `healthDetail.reason` et
+  `healthDetail.browserPlayable`.
+- **Filtre public `etat`** : `lisibles` (mesurée joignable), `mesures` (testée, quel que soit
+  le verdict). Bouton « Flux vérifiés » sur l'accueil, avec un état vide qui dit la vérité :
+  aucune chaîne mesurée disponible pour le moment.
+- **Fiche chaîne** : bandeau de mesure (daté, cause, lisibilité navigateur) sauf si le flux est
+  mesuré disponible, et trois lignes techniques : dernière mesure, lisibilité navigateur,
+  cause.
+- **`scripts/rapport-lisibilite.js`** et `npm run rapport:lisibilite` : réponse chiffrée, sans
+  réseau, à « pourquoi si peu de chaînes fonctionnent » (total, mesurées, restantes, lisibles,
+  sans CORS, par catégorie).
+- **`/api/config`** publie `health.readable`, `health.remaining`, `health.measured`,
+  `health.lastProbeAt`. **`/api/admin/stats`** publie `probe` (curseur) en plus des états.
+- **`tests/sonde.test.js`** : 14 tests (rotation, bornes du curseur, persistance sur disque,
+  ronde réelle avec réseau simulé, mesures geo/dead/cors/ok, routes, filtre public, rapport).
+
+### Modifié
+
+- `server/api/admin.js` perd la route de sonde (840 lignes) : elle vit dans
+  `server/api/admin-probe.js`, avec les mêmes permissions, déduites du couple méthode + chemin.
+- `server/core/health.js` : `classifyProbe` est exporté et la cause est écrite dans `health`.
+- La sonde de la console continue de privilégier les chaînes jamais testées ; la ronde, elle,
+  avance dans tout le catalogue.
+
+### Preuves
+
+- `npm test` : 421 tests, 85 suites, 0 échec (407/80 avant ; +14 tests, +5 suites).
+- `npm run rapport:lisibilite` sur le catalogue neuf : 1 475 chaînes, 0 mesurée, 1 475
+  restantes, 10 nuits pour finir le tour.
+- Ronde réelle sur le serveur v3.20.0 : `tested: 2`, curseur `0 → 2`, message
+  « 1473 chaînes restent à tester » ; le curseur est relu à `2` après redémarrage.
+- `npm run versionner:check` : adresses à jour en 3.20.0.
+
 ## [3.19.0] - 2026-10-31
 
 Les visiteurs ont désormais un compte. Il naît d'une inscription confirmée par e-mail, vit

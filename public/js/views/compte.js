@@ -2,12 +2,12 @@
 // Un compte visiteur n'ouvre aucun droit d'administration. Le code de confirmation part par
 // e-mail ; l'écran ne l'affiche jamais et ne le garde pas en mémoire au-delà de la saisie.
 
-import { COPY } from '../copy.js?v=3.19.0';
-import { h, icon, toast, emptyState } from '../ui.js?v=3.19.0';
-import { statCard } from '../components.js?v=3.19.0';
+import { COPY } from '../copy.js?v=3.20.0';
+import { h, icon, toast, emptyState } from '../ui.js?v=3.20.0';
+import { statCard } from '../components.js?v=3.20.0';
 import {
   Compte, compteSession, ouvrirSession, synchroniserCompte,
-} from '../compte.js?v=3.19.0';
+} from '../compte.js?v=3.20.0';
 
 function banner() {
   const box = h('div', { class: 'banner', dataset: { tone: 'danger' }, hidden: true, role: 'alert' });
