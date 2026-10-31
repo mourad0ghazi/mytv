@@ -19,6 +19,7 @@ import { can } from './core/team.js';
 import { LoginGuard, Sessions, bootstrapPassword, verifyPassword } from './core/auth.js';
 import { mailConfig, mailReady, sendMail } from './core/mailer.js';
 import { TwoFactor } from './core/twofactor.js';
+import { ACCOUNT_SESSION_TTL_MS, Users } from './core/users.js';
 import { buildChannel, isPublic, sanitizeChannel } from './core/channels.js';
 import { categorizeEntry, compileRules } from './core/classify.js';
 import { dedupe, finalizeEntries } from './core/dedupe.js';
@@ -34,6 +35,8 @@ import { registerVodRoutes } from './api/vod.js';
 import { registerSourcesRoutes } from './api/admin-sources.js';
 import { registerVodAdminRoutes } from './api/admin-vod.js';
 import { registerDocumentationRoutes } from './api/admin-doc.js';
+import { registerAccountRoutes } from './api/accounts.js';
+import { registerAdminMembersRoutes } from './api/admin-members.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -185,6 +188,16 @@ export async function createApp() {
   app.mailReady = () => app.smtpReady() && Boolean(String(store.settings.adminEmail || '').trim());
   app.twoFactor = new TwoFactor();
 
+  // Comptes visiteurs : registre de sessions distinct de la console. Un jeton visiteur ne
+  // figure jamais dans app.sessions, donc aucune route /api/admin/* ne l'accepte.
+  app.accountSessions = new Sessions({ ttlMs: ACCOUNT_SESSION_TTL_MS, max: 5000 });
+  app.users = new Users({
+    store,
+    mailReady: () => app.smtpReady(),
+    registrationOpen: () => store.settings.registrationMode !== 'ferme',
+    deliver: (message) => sendMail(app.mail, message),
+  });
+
   try {
     await bootstrapPassword(store);
   } catch (error) {
@@ -211,6 +224,8 @@ export async function createApp() {
   registerVodAdminRoutes(router, app);
   registerDocumentationRoutes(router, app);
   registerReportRoutes(router, app);
+  registerAccountRoutes(router, app);
+  registerAdminMembersRoutes(router, app);
   registerConsoleRoutes(router, app);
   app.alerts = ({ renderCards = null } = {}) => computeAlerts(store, {
     now: Date.now(),
@@ -319,7 +334,8 @@ export async function main(options = {}) {
             return;
           }
           const known = ['/', '/guide', '/favoris', '/connexion', '/mentions-legales', '/confidentialite',
-            '/signaler', '/aide', '/erreurs', '/recherche', '/anime', '/films'];
+            '/signaler', '/aide', '/erreurs', '/recherche', '/anime', '/films',
+            '/compte', '/compte/inscription', '/compte/connexion'];
           // Une fiche de chaîne n'est servie en 200 que si l'identifiant existe réellement :
           // une adresse inventée répond 404, jamais le catalogue (BUG-06).
           const channelMatch = /^\/chaine\/([A-Za-z0-9_-]{1,32})\/?$/.exec(pathname);

@@ -1,8 +1,8 @@
 // public/js/views/admin/equipe.js · onglet Équipe (3.9.0).
 // Comptes nominatifs, cinq rôles, permissions lisibles. Le propriétaire garde son mot de passe.
 
-import { Admin } from '../../api.js?v=3.18.1';
-import { h, icon, fmtNumber, spinner, emptyState, toast } from '../../ui.js?v=3.18.1';
+import { Admin } from '../../api.js?v=3.19.0';
+import { h, icon, fmtNumber, spinner, emptyState, toast } from '../../ui.js?v=3.19.0';
 
 function roleBadge(member) {
   const tone = member.role === 'administrateur' ? 'accent' : '';

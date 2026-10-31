@@ -54,7 +54,7 @@ describe('Documentation d’administration : une source de vérité (3.18.0)', (
   });
 
   test('les 24 réglages sont documentés par leur clef et leur nom français', async () => {
-    assert.equal(SCHEMA.length, 24);
+    assert.equal(SCHEMA.length, 25);
     const markdown = await lireDoc();
     for (const item of SCHEMA) {
       assert.ok(markdown.includes(`\`${item.key}\``), `clef non documentée : ${item.key}`);

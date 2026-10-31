@@ -1,7 +1,7 @@
 // public/js/ui.js · construction DOM sûre, icônes, toasts, modales, états.
 // Aucune donnée utilisateur n'est injectée en HTML : tout passe par textContent.
 
-import { withBase } from './base.js?v=3.18.1';
+import { withBase } from './base.js?v=3.19.0';
 
 const SVG = {
   search: '<circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path>',

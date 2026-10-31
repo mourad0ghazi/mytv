@@ -2,7 +2,7 @@
 // Même surface publique (api, auth, ApiError, download, Admin), mêmes formes de réponse que le
 // serveur Node, mais les données viennent d'un instantané JSON du catalogue. Lecture seule.
 
-import { BASE, withBase } from './base.js?v=3.18.1';
+import { BASE, withBase } from './base.js?v=3.19.0';
 
 const TOKEN_KEY = 'streamtv.token';
 const PAGE_MIN = 12;
@@ -37,7 +37,7 @@ export const auth = {
 const cache = new Map();
 
 /** Version de la publication, remplacée à la construction : elle périme toute copie ancienne. */
-const PUBLICATION = '3.18.1';
+const PUBLICATION = '3.19.0';
 
 /** Délai au-delà duquel une donnée manquante est dite manquante, plutôt qu'attendue sans fin. */
 const DELAI_DONNEES = Number(globalThis.STREAMTV_DELAI_DONNEES) > 0

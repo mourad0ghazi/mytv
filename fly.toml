@@ -1,38 +1,41 @@
-# StreamTV — publication sur Fly.io (https://fly.io/docs/reference/configuration/).
-#   fly launch --no-deploy --copy-config --name streamtv-demo
-#   fly volumes create streamtv_data --size 1
-#   fly secrets set ADMIN_PASSWORD=...
+# fly.toml · hébergement du serveur StreamTV sur Fly.io (3.19.0).
+# Le site statique publié sur GitHub Pages reste la vitrine ; ce processus sert les comptes,
+# l'API et les données qui doivent être écrites sur disque.
+# Créer l'application puis son volume :
+#   fly launch --no-deploy --name streamtv
+#   fly volumes create streamtv_data --size 1 --region cdg
+#   fly secrets set ADMIN_PASSWORD="…" STREAMTV_SMTP_HOST="…" STREAMTV_SMTP_USER="…" STREAMTV_SMTP_PASS="…" STREAMTV_SMTP_FROM="…"
 #   fly deploy
-app = "streamtv-demo"
+
+app = "streamtv"
 primary_region = "cdg"
 
 [build]
   dockerfile = "Dockerfile"
 
 [env]
-  NODE_ENV = "production"
-  DATA_DIR = "/app/data"
-  HTTPS = "1"
   PORT = "3000"
+  DATA_DIR = "/data"
+  NODE_ENV = "production"
+  HTTPS = "1"
 
-[[mounts]]
+[mounts]
   source = "streamtv_data"
-  destination = "/app/data"
+  destination = "/data"
 
 [http_service]
   internal_port = 3000
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = "suspend"
   auto_start_machines = true
   min_machines_running = 0
 
-  [[http_service.checks]]
-    interval = "30s"
-    timeout = "5s"
-    grace_period = "20s"
-    method = "GET"
-    path = "/healthz"
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 60
+    hard_limit = 120
 
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "256mb"
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

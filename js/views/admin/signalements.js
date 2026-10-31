@@ -2,10 +2,10 @@
 // Une chaîne signalée 1000 fois est supprimée automatiquement au moment du signalement.
 // En dessous du seuil, rien n'est retiré : c'est le propriétaire qui décide, ligne par ligne.
 
-import { Admin } from '../../api.js?v=3.18.1';
-import { h, icon, toast, emptyState, fmtNumber, fmtRelative } from '../../ui.js?v=3.18.1';
-import { statCard } from '../../components.js?v=3.18.1';
-import { apiGuard, confirmModal } from './common.js?v=3.18.1';
+import { Admin } from '../../api.js?v=3.19.0';
+import { h, icon, toast, emptyState, fmtNumber, fmtRelative } from '../../ui.js?v=3.19.0';
+import { statCard } from '../../components.js?v=3.19.0';
+import { apiGuard, confirmModal } from './common.js?v=3.19.0';
 
 const STATUS_LABEL = { nouveau: 'En attente', confirme: 'Confirmé', rejete: 'Rejeté' };
 const STATUS_TONE = { nouveau: 'warn', confirme: 'ok', rejete: '' };

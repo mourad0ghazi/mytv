@@ -26,6 +26,7 @@ const FILES = {
   devices: 'devices.json',
   accessLinks: 'access-links.json',
   sourceImports: 'source-imports.json',
+  users: 'users.json',
   audit: 'audit.log',
 };
 
@@ -62,6 +63,7 @@ export class Store {
     this.settings = { ...DEFAULTS };
     this.sources = [];
     this.sourceImports = [];
+    this.users = [];
     this.learning = { rules: {}, learned: {}, learnedStats: null, corrections: [], updatedAt: null };
     this.reports = { counters: {}, reports: [], lastRef: 0, updatedAt: null };
     this.security = { passwordHash: '', salt: '', iterations: 16384, defaultPassword: true, updatedAt: null };
@@ -126,6 +128,7 @@ export class Store {
     await this.loadPlays();
     await this.loadDevices();
     await this.loadAccessLinks();
+    await this.loadUsers();
     return this;
   }
 
@@ -258,6 +261,29 @@ export class Store {
       lastRef: Number(data.lastRef) || 0,
       updatedAt: data.updatedAt || null,
     };
+  }
+
+  async loadUsers() {
+    const { data, corrupt } = await this.readJson(this.file('users'), null);
+    if (corrupt) {
+      const quarantine = path.join(this.dataDir, `users.corrupt-${stamp()}.json`);
+      try { await fsp.rename(this.file('users'), quarantine); } catch { /* déjà déplacé */ }
+      this.notices.push('Le fichier des comptes était illisible : il a été mis de côté.');
+    }
+    this.users = Array.isArray(data?.users) ? data.users : [];
+    return this.users;
+  }
+
+  async saveUsers(reason = 'users') {
+    return this.enqueue(async () => {
+      await this.atomicWriteJson(this.file('users'), {
+        version: 1,
+        updatedAt: new Date().toISOString(),
+        reason,
+        count: this.users.length,
+        users: this.users,
+      });
+    });
   }
 
   async loadTeam() {

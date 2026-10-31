@@ -1,10 +1,10 @@
 // public/js/views/login.js · écran 6 : connexion administration, un seul mot de passe.
 // Messages d'erreur inline, jamais de fenêtre native ; 429 affiche le délai exact.
 
-import { Admin, auth, api, ApiError, deviceId } from '../api.js?v=3.18.1';
-import { COPY } from '../copy.js?v=3.18.1';
-import { consoleHref, rememberConsole } from '../console.js?v=3.18.1';
-import { h, icon, toast } from '../ui.js?v=3.18.1';
+import { Admin, auth, api, ApiError, deviceId } from '../api.js?v=3.19.0';
+import { COPY } from '../copy.js?v=3.19.0';
+import { consoleHref, rememberConsole } from '../console.js?v=3.19.0';
+import { h, icon, toast } from '../ui.js?v=3.19.0';
 
 export function renderLogin(container, ctx) {
   const { navigate } = ctx;

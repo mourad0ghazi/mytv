@@ -2,15 +2,15 @@
 // Trois rangées nommées, une rangée vide n'est jamais rendue, trois affiches par ligne
 // sur téléphone (vérifié par un test de gabarit, pas à l'œil).
 
-import { api } from '../api.js?v=3.18.1';
-import { withBase } from '../base.js?v=3.18.1';
-import { COPY } from '../copy.js?v=3.18.1';
-import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, toast } from '../ui.js?v=3.18.1';
-import { prefs } from '../prefs.js?v=3.18.1';
-import { getPlayer } from '../player.js?v=3.18.1';
+import { api } from '../api.js?v=3.19.0';
+import { withBase } from '../base.js?v=3.19.0';
+import { COPY } from '../copy.js?v=3.19.0';
+import { h, icon, fmtNumber, skeletonGrid, emptyState, spinner, toast } from '../ui.js?v=3.19.0';
+import { prefs } from '../prefs.js?v=3.19.0';
+import { getPlayer } from '../player.js?v=3.19.0';
 import {
   fmtDuration, fmtPosition, sourcesBlock, vodCard, vodFilters, vodPager, vodRow,
-} from '../vod-ui.js?v=3.18.1';
+} from '../vod-ui.js?v=3.19.0';
 
 const STATUSES = [
   { id: 'en_cours', label: 'En cours' },

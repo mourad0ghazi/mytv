@@ -1,10 +1,10 @@
 // public/js/views/admin/common.js · briques partagées des cinq onglets.
 // Chaque élément produit ici est vérifié par tests/client.test.js (styles présents, ARIA).
 
-import { COPY } from '../../copy.js?v=3.18.1';
-import { loginHref } from '../../console.js?v=3.18.1';
-import { h, icon, modal, toast } from '../../ui.js?v=3.18.1';
-import { ApiError, auth } from '../../api.js?v=3.18.1';
+import { COPY } from '../../copy.js?v=3.19.0';
+import { loginHref } from '../../console.js?v=3.19.0';
+import { h, icon, modal, toast } from '../../ui.js?v=3.19.0';
+import { ApiError, auth } from '../../api.js?v=3.19.0';
 
 function field(label, control, help = '') {
   const id = control.id || `f-${Math.random().toString(36).slice(2, 8)}`;

@@ -177,14 +177,14 @@ contenu (garde-fou BUG-03, testé).
 server/
   index.js               point d’entrée : HTTP, statique, API, repli SPA, tâches 03:00
   core/
-    constants.js         18 catégories, 24 réglages, limites, lexiques
+    constants.js         18 catégories, 25 réglages, limites, lexiques
     text.js              normalisation URL/nom, pays, langue, qualité, teinte
     m3u.js               F-01 — automate M3U tolérant (ne lève jamais)
     dedupe.js            F-09 — trois passes, fusion des variantes (F-21)
     classify.js          F-10/F-11 — catégorisation et confiance justifiée
     channels.js          contrat de chaîne, assertions A1–A10, projections publique/admin
     search.js            F-17/F-18 — index accent-insensible, tri total, pagination
-    settings.js          validation des 24 réglages, schéma pour l’interface
+    settings.js          validation des 25 réglages, schéma pour l’interface
     store.js             persistance JSON atomique (tmp → fsync → rename), sauvegardes, audit
     auth.js              scrypt N=16384 r=8 p=1, jetons 48 hex, TTL glissant 12 h
     health.js            F-16 — sonde bornée (8 en parallèle, 6 s, 300/min)
@@ -214,7 +214,7 @@ public/
   sw.js, offline.html    PWA : coquille en cache, API jamais mise en cache
   vendor/hls.min.js      hls.js 1.5.17 épinglé, Apache-2.0, servi localement
 scripts/                 ingest.js, measure-tagger.js, backup.js, verify.js
-tests/                   396 tests node:test (core, api, vidéo à la demande, sources, documentation, sécurité, client, messages, epg, alertes, apprentissage, migration, conformité, design)
+tests/                   407 tests node:test (core, api, vidéo à la demande, sources, documentation, sécurité, client, messages, epg, alertes, apprentissage, migration, conformité, design)
 docs/PV-RECETTE.md       procès-verbal de recette
 ```
 
@@ -225,7 +225,7 @@ fichiers relatifs : pas de bundler, pas de CDN.
 
 ---
 
-## 4. API HTTP (98 routes déclarées)
+## 4. API HTTP (119 routes déclarées)
 
 Enveloppe d’erreur unique : `{ "error": "phrase française", "code": "ERR-xx", "requestId": "…", "field": "…" }`.
 L’ordre de contrôle est fixe : méthode (405) → taille (413) → type (415) → authentification
@@ -257,6 +257,29 @@ L’ordre de contrôle est fixe : méthode (405) → taille (413) → type (415)
 | `POST /api/login` | jeton Bearer (8 tentatives / 15 min / IP) |
 | `POST /api/logout` | révoque le jeton présenté |
 
+### Comptes visiteurs (3.19.0)
+
+| Route | Rôle |
+|---|---|
+| `POST /api/compte/inscription` | crée un compte en attente, envoie un code à six chiffres |
+| `POST /api/compte/verification` | active le compte et ouvre une session |
+| `POST /api/compte/renvoyer-code` | renvoie un code, réponse générique |
+| `POST /api/compte/connexion` | ouvre une session visiteur (401 générique, 403 si en attente ou suspendu) |
+| `POST /api/compte/sortie` | ferme la session courante |
+| `GET/PATCH /api/compte/profil` | lit le compte, change le nom affiché |
+| `POST /api/compte/mot-de-passe` | remplace le mot de passe, ferme les autres appareils |
+| `POST /api/compte/code-oublie` | envoie un code de réinitialisation, réponse générique |
+| `POST /api/compte/reinitialisation` | remplace le mot de passe avec le code |
+| `GET/PUT /api/compte/donnees` | lit ou fusionne favoris, historique et préférences |
+| `PUT /api/compte/preferences` | habillage du lecteur, mode télé, sourdine |
+| `POST /api/compte/favoris` | ajoute ou retire un favori |
+| `POST /api/compte/historique` | enregistre une reprise de lecture |
+| `GET /api/compte/signalements` | suit les signalements envoyés connecté |
+| `GET /api/compte/droits` | rappelle le rôle `visiteur` et l'absence de permissions |
+
+Un jeton visiteur ne franchit jamais une route `/api/admin/*` : les sessions des comptes
+vivent dans un registre distinct de celui de la console. Détail complet : `docs/COMPTES.md`.
+
 ### Administration (Bearer obligatoire)
 
 | Route | Rôle |
@@ -273,7 +296,7 @@ L’ordre de contrôle est fixe : méthode (405) → taille (413) → type (415)
 | `GET /api/admin/import/:id/status` | état d’une importation |
 | `POST /api/admin/import/:id/rollback` | annulation exacte |
 | `GET /api/admin/ingestions` | historique des importations |
-| `GET/PATCH /api/admin/settings` | 24 réglages validés ensemble |
+| `GET/PATCH /api/admin/settings` | 25 réglages validés ensemble |
 | `GET/POST /api/admin/sources` | inventaire des sources, création avec licence obligatoire |
 | `PATCH/DELETE /api/admin/sources/:id` | licence, priorité, activation, suppression sans perte de contenu |
 | `POST /api/admin/sources/probe` | sonde bornée des sources, états `saine`, `instable`, `hors service` |
@@ -576,7 +599,7 @@ rejette. Un même visiteur ne compte qu'une fois par jour et par chaîne, et le 
 accepte cinq envois par heure et par adresse. **Au 1000ᵉ signalement, la chaîne est supprimée
 automatiquement**, de façon réversible et journalisée.
 
-Le seuil se règle au démarrage, sans toucher aux 24 réglages du contrat :
+Le seuil se règle au démarrage, sans toucher aux 25 réglages du contrat :
 
 ```bash
 STREAMTV_SEUIL_SIGNALEMENTS=500 npm start   # retrait automatique dès 500 signalements
@@ -591,14 +614,15 @@ Le cahier des charges de cette console, y compris les cas VLC, se trouve dans
 | Fichier | Contenu |
 |---|---|
 | `data/channels.json` | catalogue complet (chaînes actives, masquées, supprimées) |
-| `data/settings.json` | 24 réglages + secret d’administration (haché, jamais en clair) |
+| `data/settings.json` | 25 réglages + secret d’administration (haché, jamais en clair) |
 | `data/sources.json` | sources connues, licence, priorité et date de dernière ingestion |
 | `data/anime.json` | catalogue anime, episodes et sources, licence obligatoire |
 | `data/films.json` | catalogue films, adresse de lecture et sources, licence obligatoire |
-| `data/source-imports.json` |历史 des imports de sources et instantané d’annulation |
+| `data/source-imports.json` | historique des imports de sources et instantané d’annulation |
 | `data/health.json` | dernier relevé de santé |
 | `data/learning.json` | règles personnalisées et corrections |
 | `data/ingestions.json` | historique des importations et journaux de retour arrière |
+| `data/users.json` | comptes visiteurs : identité, empreinte scrypt, statut, favoris, historique, préférences |
 | `data/audit.log` | journal JSONL, secrets masqués |
 | `data/backups/` | `catalogue-AAAAMMJJ-HHMMSS[-hebdo].json` + `.sha256` |
 
@@ -642,7 +666,7 @@ est signalé comme **avertissement** (attendu en démonstration, à corriger ava
 ## 7. Tests
 
 ```bash
-npm test            # 77 suites, 396 tests, aucune dépendance
+npm test            # 80 suites, 407 tests, aucune dépendance
 ```
 
 | Suite | Ce qu’elle prouve |
@@ -656,11 +680,12 @@ npm test            # 77 suites, 396 tests, aucune dépendance
 | `tests/alerts.test.js` | douze seuils du §10.4, priorité des alertes, exposition dans `/api/admin/stats`, guide servi par `/api/epg` |
 | `tests/learning.test.js` | 12 tests : découpage des noms, seuil de support, bornes de poids, priorité du manuel, effet réel sur le classement, exposition dans l’administration |
 | `tests/migrate.test.js` | 14 tests : schéma (36 colonnes typées), échappement SQL, aller-retour exact (accents, guillemets, arabe, tabulations), idempotence, tables annexes, script `--plan`/`--write`/`--verify`/`--reverse` et journal d’audit |
-| `tests/conformite.test.js` | 900 lignes maximum, aucun marqueur de travail, zéro dépendance, 20 codes, 24 réglages, 18 catégories, documents présents, 118 critères couverts |
+| `tests/conformite.test.js` | 900 lignes maximum, aucun marqueur de travail, zéro dépendance, 20 codes, 25 réglages, 18 catégories, documents présents, 118 critères couverts |
 | `tests/sources-vod-core.test.js` | sources, anime et films : licence obligatoire, priorités, sonde, fusion atomique |
 | `tests/vod-sources.test.js` | routes anime, films, sources et recherche ; refus sans licence ; arbitrage ; seuil de retrait |
 | `tests/documentation.test.js` | la console et `docs/ADMINISTRATION.md` disent la même chose : onglets, réglages, codes d’audit |
 | `tests/statique.test.js` | copie publiée : worker, attente finie, `withBase` sous `/mytv/`, affiches livrées, 13 contrôles d’adresse |
+| `tests/comptes.test.js` | comptes visiteurs : inscription confirmée par un serveur SMTP local, code faux puis juste, jeton refusé sur la console, favoris et reprises, fusion, suspension, suppression, inscriptions fermées, expiration et plafonds |
 
 Les tests démarrent chacun leur propre serveur sur un dossier temporaire : le catalogue réel n’est
 jamais modifié.
@@ -730,8 +755,10 @@ hors éléments explicitement repoussés ci-dessous.
 
 ## 11. Documentation
 
+- `docs/COMPTES.md` : comptes visiteurs, plafonds, routes, vie privée (3.19.0).
+- `docs/DEPLOIEMENT-FLY.md` : hébergement du serveur Node sur Fly.io avec un volume (3.19.0).
 - `docs/PROMPT-CONSOLE-CHAINES.md` : cahier des charges de la console chaînes et liens (3.7.0).
-- `docs/ADMINISTRATION.md` : les 14 onglets de la console, les 24 réglages et les 50 codes d’audit, affiché dans la console.
+- `docs/ADMINISTRATION.md` : les 15 onglets de la console, les 25 réglages et les 59 codes d’audit, affiché dans la console.
 
 | Fichier | Contenu |
 |---|---|
@@ -742,6 +769,8 @@ hors éléments explicitement repoussés ci-dessous.
 | `SOURCES.md` | licences des composants et des données |
 | `docs/PV-RECETTE.md` | procès-verbal de recette signé, avec les preuves |
 | `PUBLIER.md` | mise en ligne : Render, Fly.io, VPS/Docker, variables d'environnement, liste de contrôle |
+| `docs/COMPTES.md` | comptes visiteurs : cycle de vie, codes, plafonds, routes, vie privée |
+| `docs/DEPLOIEMENT-FLY.md` | serveur Node sur Fly.io : image, volume, secrets, sauvegardes |
 
 ---
 

@@ -347,12 +347,12 @@ l'atelier. Le rendu réel est contrôlé après publication, sur le site en lign
 ### Recette des écrans de la 3.18.1
 
 Complément daté du 31 octobre 2026. Il ne remplace pas le procès-verbal initial (3.8.0) :
-il consigne ce que la 3.18.0 ajoute et les preuves exécutées ce jour-là, corrigées par la
-3.18.1 (affiches suivant la racine de publication).
+il consigne ce que la 3.19.0 ajoute et les preuves exécutées ce jour-là, sans retirer celles
+des versions précédentes (3.18.0, corrigée par la 3.18.1).
 
 | Point | Vérification | Résultat |
 |---|---|---|
-| Tests | `npm test` : 396 tests, 77 suites, 0 échec, 0 ignoré | conforme |
+| Tests | `npm test` : 407 tests, 80 suites, 0 échec, 0 ignoré | conforme |
 | Contrôles d'exploitation | `node scripts/verify.js --base http://127.0.0.1:3000` : 53 contrôles réussis sur 54 | conforme, 1 avertissement attendu (mot de passe de démonstration) |
 | Catalogue anime | 7 fiches publiées, toutes avec licence et au moins un épisode | conforme |
 | Catalogue films | 6 fiches publiées, toutes avec licence et une adresse de lecture | conforme |
@@ -361,10 +361,14 @@ il consigne ce que la 3.18.0 ajoute et les preuves exécutées ce jour-là, corr
 | Refus sans licence | création de source, import et publication refusés (422, ERR-16) | conforme, test dédié |
 | Priorité | doublon entre deux sources arbitré par priorité, journalisé | conforme, test dédié |
 | Seuil de signalements | 1000 signalements retirent une chaîne, un anime ou un film ; restauration possible | conforme, test dédié |
-| Console | 14 onglets, dont Anime, Films et Sources ; documentation liée à chaque onglet | conforme, `tests/documentation.test.js` |
-| Réglages | 24 réglages, tous affichés et documentés ; `vodEnabled` ferme les deux catalogues | conforme |
+| Console | 15 onglets, dont Anime, Films et Sources ; documentation liée à chaque onglet | conforme, `tests/documentation.test.js` |
+| Réglages | 25 réglages, tous affichés et documentés ; `vodEnabled` ferme les deux catalogues | conforme |
 | Téléphone | trois affiches par ligne à 375 px, aucun contrôle posé sur l'affiche | conforme, `tests/design.test.js` |
 | Affiches publiées | chaque affiche suit la racine `/mytv/` et existe dans `public/posters/` | conforme, `tests/statique.test.js` |
+| Comptes visiteurs | inscription, confirmation par code, connexion, favoris, reprises, préférences et fusion | conforme, `tests/comptes.test.js` (serveur SMTP local) |
+| Séparation console / comptes | jeton visiteur refusé (401) sur `/api/admin/settings` et `/api/admin/membres` | conforme, test dédié |
+| Modération | suspension avec fermeture des sessions, réactivation, suppression des données personnelles | conforme, test dédié |
+| Inscription fermée | `registrationMode` = `ferme` refuse toute nouvelle inscription (403) sans toucher aux comptes | conforme, test dédié |
 | Publication | `npm run build:static`, base `/mytv/`, anime, films et sources dans l'instantané | conforme, `tests/statique.test.js` |
 | Adresse en ligne | `https://mourad0ghazi.github.io/mytv/` : accueil, anime, films, recherche et fiches | artefact vérifié localement sous `/mytv/` par les 13 contrôles de `npm run verifier:publication` ; activation Pages à faire dans les réglages du dépôt (l’API refuse, 403) |
 

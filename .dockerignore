@@ -1,16 +1,13 @@
-# Rien de ce qui n'est pas utile à l'exécution n'entre dans l'image.
+# Le conteneur n'a besoin ni de l'historique Git, ni des tests, ni du build statique.
 .git
-.github
-data/*.json
-data/*.json.*
-data/audit.log
-data/backups
-data/logs
-data/migrations
-tests
-docs
+.gitignore
 node_modules
-*.log
-.tmp
-coverage
 dist-static
+data
+tests
+*.md
+!README.md
+!CHANGELOG.md
+!CONFORMITE.md
+!RUNBOOK.md
+!PUBLIER.md

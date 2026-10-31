@@ -51,7 +51,7 @@ async function main() {
   check('6 familles de messages', FAMILIES.length === 6, `${FAMILIES.length} familles`);
   check('codes opposables tous reliés', Object.keys(ERR_TO_MESSAGE).length === 20
     && Object.values(ERR_TO_MESSAGE).every((id) => MESSAGE_BY_ID.has(id)), 'table ERR → message');
-  check('24 réglages', Object.keys(DEFAULTS).length === SETTING_COUNT && SETTING_COUNT === 24,
+  check('25 réglages', Object.keys(DEFAULTS).length === SETTING_COUNT && SETTING_COUNT === 25,
     `${Object.keys(DEFAULTS).length} réglages`);
   check('18 catégories', CATEGORY_IDS.length === 18, `${CATEGORY_IDS.length} catégories`);
   const settingsCheck = validateSettings(store.settings);
