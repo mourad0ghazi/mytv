@@ -5,14 +5,19 @@
 // s'oublie pour qu'un nouvel essai redemande vraiment le fichier.
 
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import fsp from 'node:fs/promises';
+import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import test, { describe } from 'node:test';
+import { promisify } from 'node:util';
 import vm from 'node:vm';
 import { pathToFileURL } from 'node:url';
 
 import { ROOT } from './helpers.js';
+
+const executer = promisify(execFile);
 
 /**
  * Page publiée minimale : une balise <base> comme celle du site, et une origine.
@@ -321,5 +326,91 @@ describe('Racine de publication : les fichiers du site suivent <base> (3.18.0)',
       assert.match(affiche, /^\/posters\/[\w-]+\.svg$/, `affiche hors du dossier livré : ${affiche}`);
       await fsp.access(path.join(ROOT, 'public', affiche.replace(/^\//, '')));
     }
+  });
+});
+
+describe('Adresse publiée : contrôle automatique (3.18.1)', () => {
+  const TYPES = {
+    '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+    '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
+    '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json',
+  };
+
+  /** Sert la copie publiée sous /mytv/, comme GitHub Pages, avec un <base> facultatif. */
+  async function servirPublie({ avecBase = true } = {}) {
+    const serveur = http.createServer(async (requete, reponse) => {
+      const url = new URL(requete.url, 'http://exemple.test');
+      let relatif = decodeURIComponent(url.pathname);
+      if (!relatif.startsWith('/mytv/')) {
+        reponse.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
+        reponse.end('hors base');
+        return;
+      }
+      relatif = relatif.slice('/mytv/'.length) || 'index.html';
+      let fichier = path.join(ROOT, relatif);
+      try {
+        const stat = await fsp.stat(fichier);
+        if (stat.isDirectory()) fichier = path.join(fichier, 'index.html');
+        let corps = await fsp.readFile(fichier);
+        if (!avecBase && relatif === 'index.html') {
+          corps = Buffer.from(String(corps).replace(/<base href="[^"]*">/, ''));
+        }
+        reponse.writeHead(200, { 'content-type': TYPES[path.extname(fichier)] || 'application/octet-stream' });
+        reponse.end(corps);
+      } catch {
+        const secours = await fsp.readFile(path.join(ROOT, '404.html')).catch(() => Buffer.from('introuvable'));
+        reponse.writeHead(404, { 'content-type': 'text/html; charset=utf-8' });
+        reponse.end(secours);
+      }
+    });
+    await new Promise((resolve) => serveur.listen(0, '127.0.0.1', resolve));
+    const { port } = serveur.address();
+    return {
+      base: `http://127.0.0.1:${port}/mytv/`,
+      stop: () => new Promise((resolve) => serveur.close(resolve)),
+    };
+  }
+
+  const lancer = (base) => executer(process.execPath, [
+    path.join(ROOT, 'scripts', 'verifier-publication.js'), '--base', base, '--json',
+  ]);
+
+  test('la copie publiée passe les treize contrôles', async () => {
+    const site = await servirPublie();
+    try {
+      const { stdout } = await lancer(site.base);
+      const rapport = JSON.parse(stdout);
+      assert.equal(rapport.ok, true, JSON.stringify(rapport.checks.filter((c) => !c.ok)));
+      assert.equal(rapport.checks.length, 13);
+      assert.ok(rapport.checks.every((entree) => entree.ok));
+      assert.equal(rapport.base, site.base);
+    } finally {
+      await site.stop();
+    }
+  });
+
+  test('une page sans racine de publication est signalée, avec le code 1', async () => {
+    const site = await servirPublie({ avecBase: false });
+    try {
+      await assert.rejects(lancer(site.base), (erreur) => {
+        assert.equal(erreur.code, 1);
+        const rapport = JSON.parse(erreur.stdout);
+        assert.equal(rapport.ok, false);
+        assert.equal(rapport.checks.some((entree) => !entree.ok && entree.nom === 'racine de publication déclarée'), true);
+        return true;
+      });
+    } finally {
+      await site.stop();
+    }
+  });
+
+  test('une adresse qui ne répond pas est signalée sans lever', async () => {
+    const { stdout } = await executer(process.execPath, [
+      path.join(ROOT, 'scripts', 'verifier-publication.js'), '--base', 'http://127.0.0.1:9/mytv/', '--json',
+    ]).catch((erreur) => ({ stdout: erreur.stdout }));
+    const rapport = JSON.parse(stdout);
+    assert.equal(rapport.ok, false);
+    assert.equal(rapport.checks[0].nom, 'adresse joignable');
+    assert.equal(rapport.checks[0].ok, false);
   });
 });

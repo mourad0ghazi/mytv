@@ -352,7 +352,7 @@ il consigne ce que la 3.18.0 ajoute et les preuves exécutées ce jour-là, corr
 
 | Point | Vérification | Résultat |
 |---|---|---|
-| Tests | `npm test` : 393 tests, 0 échec, 0 ignoré | conforme |
+| Tests | `npm test` : 396 tests, 77 suites, 0 échec, 0 ignoré | conforme |
 | Contrôles d'exploitation | `node scripts/verify.js --base http://127.0.0.1:3000` : 53 contrôles réussis sur 54 | conforme, 1 avertissement attendu (mot de passe de démonstration) |
 | Catalogue anime | 7 fiches publiées, toutes avec licence et au moins un épisode | conforme |
 | Catalogue films | 6 fiches publiées, toutes avec licence et une adresse de lecture | conforme |
@@ -366,7 +366,7 @@ il consigne ce que la 3.18.0 ajoute et les preuves exécutées ce jour-là, corr
 | Téléphone | trois affiches par ligne à 375 px, aucun contrôle posé sur l'affiche | conforme, `tests/design.test.js` |
 | Affiches publiées | chaque affiche suit la racine `/mytv/` et existe dans `public/posters/` | conforme, `tests/statique.test.js` |
 | Publication | `npm run build:static`, base `/mytv/`, anime, films et sources dans l'instantané | conforme, `tests/statique.test.js` |
-| Adresse en ligne | `https://mourad0ghazi.github.io/mytv/` : accueil, anime, films, recherche et fiches | artefact vérifié localement sous `/mytv/` ; activation Pages à faire dans les réglages du dépôt |
+| Adresse en ligne | `https://mourad0ghazi.github.io/mytv/` : accueil, anime, films, recherche et fiches | artefact vérifié localement sous `/mytv/` par les 13 contrôles de `npm run verifier:publication` ; activation Pages à faire dans les réglages du dépôt (l’API refuse, 403) |
 
 Réserve identique à la recette initiale : le rendu est vérifié sur les règles de la feuille de
 style, le DOM produit et les fichiers publiés, pas sur une capture d'écran dans l'atelier.
