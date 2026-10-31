@@ -15,10 +15,14 @@ déduplication → catégorisation → confiance), client HTML/CSS/JS en modules
 
 ## 0. Démonstration en ligne
 
-Une version statique du site est publiée sur **https://mourad0ghazi.github.io/mytv/** :
-catalogue réel de 1 475 chaînes, 7 anime et 6 films sous licence, recherche globale, guide,
-fiches, favoris, pages légales et catalogue des messages. Elle est **en lecture seule** — GitHub Pages ne peut pas exécuter le serveur Node,
-donc ni connexion administration, ni import ni réglages. La lecture des flux dépend du CORS des
+La version statique du site est prête pour **https://mourad0ghazi.github.io/mytv/** (branche
+`main`, racine) : catalogue réel de 1 475 chaînes, 7 anime et 6 films sous licence, recherche
+globale, guide, fiches, favoris, pages légales et catalogue des messages. GitHub Pages doit
+être activé une fois dans les réglages du dépôt : l’intégration GitHub de l’atelier n’a pas la
+permission `pages` nécessaire à cette activation.
+
+Elle est **en lecture seule** : GitHub Pages ne peut pas exécuter le serveur Node, donc ni
+connexion administration, ni import, ni réglages. La lecture des flux dépend du CORS des
 sources, comme sur le site complet.
 
 Pour la régénérer après une modification : serveur lancé, puis

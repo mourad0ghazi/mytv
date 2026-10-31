@@ -364,7 +364,7 @@ il consigne ce que la 3.18.0 ajoute et les preuves exécutées ce jour-là.
 | Réglages | 24 réglages, tous affichés et documentés ; `vodEnabled` ferme les deux catalogues | conforme |
 | Téléphone | trois affiches par ligne à 375 px, aucun contrôle posé sur l'affiche | conforme, `tests/design.test.js` |
 | Publication | `npm run build:static`, base `/mytv/`, anime, films et sources dans l'instantané | conforme, `tests/statique.test.js` |
-| Adresse en ligne | `https://mourad0ghazi.github.io/mytv/` : accueil, anime, films, recherche et fiches | vérifié après publication |
+| Adresse en ligne | `https://mourad0ghazi.github.io/mytv/` : accueil, anime, films, recherche et fiches | artefact vérifié localement sous `/mytv/` ; activation Pages à faire dans les réglages du dépôt |
 
 Réserve identique à la recette initiale : le rendu est vérifié sur les règles de la feuille de
 style, le DOM produit et les fichiers publiés, pas sur une capture d'écran dans l'atelier.

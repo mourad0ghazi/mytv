@@ -140,8 +140,10 @@ session n'a pas. Le workflow lance `npm test` avant de construire l'image, puis 
 ## 6. Démonstration statique publiée sur GitHub Pages
 
 GitHub Pages ne sait servir que des fichiers : il ne peut pas exécuter le serveur Node. Une
-démonstration statique est publiée sur **https://mourad0ghazi.github.io/mytv/** à partir de la
-branche `main`, dossier racine.
+démonstration statique est préparée pour **https://mourad0ghazi.github.io/mytv/** à partir de
+la branche `main`, dossier racine. L'activation de GitHub Pages se fait une fois dans
+*Settings → Pages → Deploy from a branch* ; l'API refuse cette activation sans la permission
+`pages`.
 
 **Ce que montre la démonstration** : le catalogue complet (1 475 chaînes), les 7 anime et les
 6 films sous licence, la recherche globale avec suggestions, le guide de zapping, les fiches,
