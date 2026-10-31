@@ -69,6 +69,9 @@ ne s'affiche pas. La console gagne trois onglets et sa propre documentation.
 - `node scripts/verify.js --base http://127.0.0.1:3000` : 53 contrôles réussis sur 54, un
   avertissement attendu (mot de passe de démonstration).
 - `npm run build:static` : 1 475 chaînes, 7 anime, 6 films, base `/mytv/`, version 3.18.0.
+- Démonstration statique servie et vérifiée localement sous `/mytv/` (page, modules, instantanés
+  anime, films et sources). L'activation de GitHub Pages reste un geste propriétaire :
+  l'intégration GitHub de l'atelier n'a pas la permission `pages` (403 à la création du site).
 
 ## [3.17.0] - 2026-10-31
 
