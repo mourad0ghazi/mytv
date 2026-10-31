@@ -184,6 +184,22 @@ Le script `scripts/build-static.js` :
    réponse, mais les données viennent de l'instantané et toute écriture est refusée avec un
    message explicite.
 
+### Vérifier l'adresse publiée
+
+```bash
+npm run verifier:publication                                   # adresse de /mytv par défaut
+npm run verifier:publication -- --base https://exemple.test/demo/   # une autre adresse
+```
+
+Treize contrôles : page joignable, `<base>` déclaré, version de la page égale à `package.json`,
+modules versionnés, worker à jour, couche de lecture figée (aucun marqueur de construction),
+instantanés anime et films non vides et tous licenciés, sources publiées licenciées, affiche
+servie sous la racine de publication, lien profond rendu par la coquille. Le script sort en
+code 1 et rappelle la marche à suivre si l'adresse répond 404 (Pages non activé).
+
+La commande doit partir d'une machine qui atteint l'adresse : depuis un réseau qui la bloque,
+le premier contrôle échoue avec « fetch failed », ce qui ne dit rien du site lui-même.
+
 ### Revenir en arrière
 
 Supprimer les fichiers générés à la racine (`index.html`, `404.html`, `.nojekyll`, `css/`, `js/`,

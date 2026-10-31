@@ -26,9 +26,19 @@ sortait de ce dossier et répondait 404. Le défaut ne se voyait pas sur le serv
 - La version du serveur est désormais comparée à celle de `package.json` par le test de
   conformité, au lieu d'une chaîne figée dans le test.
 
+- **`scripts/verifier-publication.js`** : treize contrôles sur l'adresse publiée (page, version,
+  modules, worker, couche de lecture, instantanés anime et films, sources, affiche sous la
+  racine, lien profond). Sortie 0 si tout passe, 1 sinon, avec la marche à suivre en cas de 404.
+  `npm run verifier:publication`, ou `--base <url>` pour une autre adresse, `--json` pour un
+  résultat lisible par une machine. Aucun fichier écrit.
+- **Trois tests** (`tests/statique.test.js`) : la copie publiée servie sous `/mytv/` passe les
+  treize contrôles ; une page sans `<base>` est signalée avec le code 1 ; une adresse muette
+  est signalée sans lever.
+
 ### Preuves
 
-- `npm test` : 393 tests, 0 échec.
+- `npm test` : 396 tests, 0 échec.
+- `npm run verifier:publication -- --base http://127.0.0.1:8080/mytv/` : 13/13 contrôles.
 - `npm run build:static` : démonstration reconstruite pour `/mytv/`, version 3.18.1.
 
 ## [3.18.0] - 2026-10-31

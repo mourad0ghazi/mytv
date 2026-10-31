@@ -30,6 +30,7 @@ Ils suivent la même écriture atomique que `channels.json` et entrent dans les 
 | Sonde des sources | console, onglet Sources, bouton Sonder | `saine`, `instable` ou `hors service` |
 | Fermer les deux catalogues | réglage `vodEnabled` | les entrées Anime et Films quittent les deux barres |
 | Vérifier la livraison | `node scripts/verify.js --base http://127.0.0.1:3000` | anime et films non vides, tous licenciés |
+| Vérifier l’adresse publiée | `npm run verifier:publication` | treize contrôles sur la page en ligne, code 1 en cas d’écart |
 | Restaurer un contenu retiré | console, onglet Anime ou Films, bouton Restaurer | refusé si la licence manque |
 
 Une source supprimée ne supprime aucun contenu déjà importé. Une fiche sans licence reste

@@ -214,7 +214,7 @@ public/
   sw.js, offline.html    PWA : coquille en cache, API jamais mise en cache
   vendor/hls.min.js      hls.js 1.5.17 épinglé, Apache-2.0, servi localement
 scripts/                 ingest.js, measure-tagger.js, backup.js, verify.js
-tests/                   393 tests node:test (core, api, vidéo à la demande, sources, documentation, sécurité, client, messages, epg, alertes, apprentissage, migration, conformité, design)
+tests/                   396 tests node:test (core, api, vidéo à la demande, sources, documentation, sécurité, client, messages, epg, alertes, apprentissage, migration, conformité, design)
 docs/PV-RECETTE.md       procès-verbal de recette
 ```
 
@@ -630,7 +630,8 @@ node scripts/migrate.js --plan                     # préparation de la bascule 
 node scripts/migrate.js --verify                   # aller-retour SQL sur le catalogue réel
 node scripts/migrate.js --write                    # écrit schema.sql, data.sql et manifest.json
 node scripts/migrate.js --reverse <data.sql>       # retour arrière vers un JSON de chaînes
-node scripts/verify.js --base http://127.0.0.1:3000 # 40 contrôles de santé
+node scripts/verify.js --base http://127.0.0.1:3000 # contrôles de santé du serveur
+node scripts/verifier-publication.js                # 13 contrôles de l’adresse publiée
 ```
 
 `verify.js` sort en code 0 si tout passe, 1 en cas d’erreur réelle. Le mot de passe par défaut
@@ -641,7 +642,7 @@ est signalé comme **avertissement** (attendu en démonstration, à corriger ava
 ## 7. Tests
 
 ```bash
-npm test            # 76 suites, 393 tests, aucune dépendance
+npm test            # 77 suites, 396 tests, aucune dépendance
 ```
 
 | Suite | Ce qu’elle prouve |
@@ -659,6 +660,7 @@ npm test            # 76 suites, 393 tests, aucune dépendance
 | `tests/sources-vod-core.test.js` | sources, anime et films : licence obligatoire, priorités, sonde, fusion atomique |
 | `tests/vod-sources.test.js` | routes anime, films, sources et recherche ; refus sans licence ; arbitrage ; seuil de retrait |
 | `tests/documentation.test.js` | la console et `docs/ADMINISTRATION.md` disent la même chose : onglets, réglages, codes d’audit |
+| `tests/statique.test.js` | copie publiée : worker, attente finie, `withBase` sous `/mytv/`, affiches livrées, 13 contrôles d’adresse |
 
 Les tests démarrent chacun leur propre serveur sur un dossier temporaire : le catalogue réel n’est
 jamais modifié.

@@ -17,6 +17,7 @@
     "measure": "node scripts/measure-tagger.js",
     "backup": "node scripts/backup.js",
     "verify": "node scripts/verify.js --base http://127.0.0.1:3000",
+    "verifier:publication": "node scripts/verifier-publication.js",
     "versionner": "node scripts/versionner-modules.js",
     "versionner:check": "node scripts/versionner-modules.js --check",
     "epg:demo": "node scripts/make-epg-demo.js",
